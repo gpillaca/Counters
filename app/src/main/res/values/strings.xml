@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Counters</string>
+    <string name="onboarding_title">Counters</string>
+    <string name="onboarding_description">Capture cups of lattes, frapuccinos, or anything else that can be counted.</string>
+    <string name="get_started">Get started</string>
 </resources>
