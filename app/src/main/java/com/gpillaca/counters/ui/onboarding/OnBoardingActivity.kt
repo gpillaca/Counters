@@ -1,4 +1,4 @@
-package com.gpillaca.counters.ui
+package com.gpillaca.counters.ui.onboarding
 
 import android.content.Intent
 import android.graphics.Color
@@ -6,7 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.gpillaca.counters.MainActivity
+import com.gpillaca.counters.ui.main.MainActivity
 import com.gpillaca.counters.R
 import com.gpillaca.counters.databinding.ActivityOnBoardingBinding
 
