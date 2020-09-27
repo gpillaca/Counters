@@ -2,10 +2,13 @@ package com.gpillaca.counters.ui.main
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.gpillaca.counters.R
 import com.gpillaca.counters.databinding.ActivityMainBinding
 import com.gpillaca.counters.domain.Counter
+import com.gpillaca.counters.ui.main.CounterAction.*
 import com.gpillaca.counters.ui.main.CounterUiModel.*
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -14,6 +17,7 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListener {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var counterAdapter: CounterAdapter
 
     @Inject
     lateinit var presenter: MainContract.Presenter
@@ -23,7 +27,39 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.buttonAddCounter.setOnClickListener(this)
+        initAdapter()
         presenter.loadCounters()
+    }
+
+    private fun initAdapter() {
+        counterAdapter = CounterAdapter { counter, action ->
+            when (action) {
+                PLUS -> {
+                    plusCounter(counter)
+                }
+                LESS -> {
+                    lessCounter(counter)
+                }
+                DELETE -> {
+                    deleteCounter(counter)
+                }
+            }
+        }
+    }
+
+    private fun plusCounter(counter: Counter) {
+        //TODO Implement function
+        Toast.makeText(this, "${counter.title} PLUS", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun lessCounter(counter: Counter) {
+        //TODO Implement function
+        Toast.makeText(this, "${counter.title} LESS", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun deleteCounter(counter: Counter) {
+        //TODO Implement function
+        Toast.makeText(this, "${counter.title} DELETE", Toast.LENGTH_SHORT).show()
     }
 
     override fun show(counterUiModel: CounterUiModel) {
@@ -57,7 +93,11 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
     }
 
     private fun showCounters(counters: List<Counter>) {
-
+        binding.recyclerViewCounters.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        binding.recyclerViewCounters.addItemDecoration(CounterItemDecorator())
+        counterAdapter.counters = counters
+        binding.recyclerViewCounters.adapter = counterAdapter
     }
 
     override fun onDestroy() {
@@ -65,13 +105,26 @@ class MainActivity : AppCompatActivity(), MainContract.View, View.OnClickListene
         presenter.onDestroyScope()
     }
 
+    private fun navigateToAddCounter() {
+        //TODO Implement function
+    }
+
+    private fun hideViewMessage() {
+        binding.viewMessage.root.visibility = View.GONE
+        binding.viewMessageBackground.visibility = View.GONE
+        binding.viewMessage.buttonRetry.visibility = View.GONE
+    }
+
     override fun onClick(view: View?) {
         val id = view?.id ?: return
 
         when (id) {
             R.id.buttonRetry -> {
+                hideViewMessage()
+                presenter.loadCounters()
             }
             R.id.buttonAddCounter -> {
+                navigateToAddCounter()
             }
         }
     }

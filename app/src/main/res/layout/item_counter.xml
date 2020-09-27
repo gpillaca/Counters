@@ -2,7 +2,15 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="54dp">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineVertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="113dp"
+        app:layout_constraintGuide_percent="0.7" />
 
     <View
         android:id="@+id/viewItemBackground"
@@ -19,15 +27,14 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="14dp"
+        android:layout_marginEnd="16dp"
         android:ellipsize="end"
         android:maxLines="3"
-        android:text="ewrty"
-        android:layout_marginEnd="16dp"
         android:textAlignment="textStart"
         android:textColor="@color/text_color_primary"
         android:textSize="17sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/buttonLess"
+        app:layout_constraintEnd_toStartOf="@+id/guideLineVertical"
         app:layout_constraintStart_toStartOf="@+id/viewItemBackground"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -37,21 +44,24 @@
         android:layout_width="@dimen/button_item_counter"
         android:layout_height="@dimen/button_item_counter"
         android:layout_marginEnd="19dp"
+        android:contentDescription="@null"
         android:src="@drawable/ic_less"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/textViewValue"
+        app:layout_constraintStart_toStartOf="@+id/guideLineVertical"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textViewValue"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="19dp"
-        android:text="0"
+        android:maxLength="2"
+        android:maxLines="1"
+        android:textAlignment="center"
         android:textColor="@color/text_color_primary"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/buttonPlus"
+        app:layout_constraintStart_toEndOf="@+id/buttonLess"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
@@ -60,6 +70,7 @@
         android:layout_width="@dimen/button_item_counter"
         android:layout_height="@dimen/button_item_counter"
         android:layout_marginEnd="14dp"
+        android:contentDescription="@null"
         android:src="@drawable/ic_plus"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/viewItemBackground"
@@ -69,6 +80,7 @@
         android:layout_width="28dp"
         android:layout_height="28dp"
         android:layout_marginEnd="12dp"
+        android:contentDescription="@null"
         android:src="@drawable/ic_check_circle"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"

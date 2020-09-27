@@ -2,7 +2,8 @@ package com.gpillaca.counters.ui.main
 
 import com.gpillaca.counters.R
 import com.gpillaca.counters.data.repository.CounterRepository
-import com.gpillaca.counters.ui.common.OperationResults
+import com.gpillaca.counters.ui.common.OperationResults.Error
+import com.gpillaca.counters.ui.common.OperationResults.Success
 import com.gpillaca.counters.ui.common.Scope
 import com.gpillaca.counters.util.AndroidHelper
 import kotlinx.coroutines.launch
@@ -27,19 +28,20 @@ class MainPresenter @Inject constructor(
             }
 
             when (val response = counterRepository.listCounters()) {
-                is OperationResults.Success -> {
+                is Success -> {
                     if (response.data.isEmpty()) {
                         view.show(
                             CounterUiModel.Message(
                                 title = AndroidHelper.getString(R.string.no_counters_yet),
-                                message = AndroidHelper.getString(R.string.no_counters_yet_message))
+                                message = AndroidHelper.getString(R.string.no_counters_yet_message)
+                            )
                         )
                         return@launch
                     }
 
                     view.show(CounterUiModel.Success(response.data))
                 }
-                is OperationResults.Error -> {
+                is Error -> {
                     sendErrorMessage()
                 }
             }
@@ -47,10 +49,12 @@ class MainPresenter @Inject constructor(
     }
 
     private fun sendErrorMessage() {
-        view.show(CounterUiModel.Error(
-            title = AndroidHelper.getString(R.string.couldnt_load_the_counters),
-            message = AndroidHelper.getString(R.string.couldnt_load_the_counters_message)
-        ))
+        view.show(
+            CounterUiModel.Error(
+                title = AndroidHelper.getString(R.string.couldnt_load_the_counters),
+                message = AndroidHelper.getString(R.string.couldnt_load_the_counters_message)
+            )
+        )
     }
 
     override fun onDestroyScope() {
