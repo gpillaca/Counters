@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.addcounter.AddCounterActivity">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineVerticalStart"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="21dp" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideLineVerticalEnd"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="21dp" />
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        app:title="@string/create_counter"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/toolbarButtonSave"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:visibility="visible"
+            android:text="@string/save" />
+
+        <ProgressBar
+            android:id="@+id/toolbarProgressBar"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="end"
+            android:layout_marginEnd="18dp"
+            android:indeterminate="true"
+            android:indeterminateTintMode="src_in"
+            android:visibility="invisible" />
+    </androidx.appcompat.widget.Toolbar>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayoutName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="45dp"
+        app:hintEnabled="false"
+        app:layout_constraintEnd_toEndOf="@+id/guideLineVerticalEnd"
+        app:layout_constraintStart_toStartOf="@+id/guideLineVerticalStart"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/textInputEditTextName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/color_background"
+            android:hint="@string/hint_example_add_counter"
+            android:inputType="text"
+            android:maxLines="3"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/textViewLabelTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/name"
+        android:textColor="@color/color_accent"
+        android:textColorHint="@color/color_accent"
+        app:layout_constraintStart_toStartOf="@+id/guideLineVerticalStart"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintTop_toTopOf="@+id/textInputLayoutName" />
+
+    <TextView
+        android:id="@+id/textViewExample"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:text="@string/give_it_a_name"
+        android:textColor="@color/text_color_secondary"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="@+id/guideLineVerticalEnd"
+        app:layout_constraintStart_toStartOf="@+id/guideLineVerticalStart"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutName" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

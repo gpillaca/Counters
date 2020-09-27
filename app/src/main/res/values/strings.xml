@@ -10,6 +10,15 @@
     <string name="retry">Retry</string>
     <string name="search_counters">Search Counters</string>
     <string name="add_counter">Add Counter</string>
-    <string name="items">items</string>
-    <string name="times">times</string>
+    <string name="items">%s items</string>
+    <string name="times">%s times</string>
+    <string name="give_it_a_name">Give it a name. Creative block? See <u>examples</u>.</string>
+    <string name="name">Name</string>
+    <string name="create_counter">Create counter</string>
+    <string name="save">Save</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="hint_example_add_counter">Cups of coffee</string>
+    <string name="add_counter_name">Please, add a counter name</string>
 </resources>

@@ -5,6 +5,6 @@ import com.gpillaca.counters.data.server.Counter as CounterServer
 
 fun CounterServer.toDomainCounter() = CounterDomain(
     id,
-    title,
-    count
+    title ?: "",
+    count ?: 0
 )

@@ -17,4 +17,17 @@ class RetrofitDataSource(private val counterDbService: CounterDbService) : Remot
             OperationResults.Error(e)
         }
     }
+
+    override suspend fun addCounter(title: String): OperationResults<Counter> {
+        return try {
+            val request = mutableMapOf("title" to title)
+            val counters: List<Counter> = counterDbService.addCounter(request).map {
+                it.toDomainCounter()
+            }
+
+            OperationResults.Success(counters)
+        } catch (e: Exception) {
+            OperationResults.Error(e)
+        }
+    }
 }

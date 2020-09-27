@@ -2,6 +2,7 @@ package com.gpillaca.counters.ui.main
 
 import com.gpillaca.counters.R
 import com.gpillaca.counters.data.repository.CounterRepository
+import com.gpillaca.counters.domain.Counter
 import com.gpillaca.counters.ui.common.OperationResults.Error
 import com.gpillaca.counters.ui.common.OperationResults.Success
 import com.gpillaca.counters.ui.common.Scope
@@ -15,7 +16,7 @@ class MainPresenter @Inject constructor(
 ) : MainContract.Presenter, Scope by Scope.Impl() {
 
     init {
-        createScope()
+        onCreateScope()
     }
 
     override fun loadCounters() {
@@ -39,13 +40,29 @@ class MainPresenter @Inject constructor(
                         return@launch
                     }
 
-                    view.show(CounterUiModel.Success(response.data))
+                    view.show(
+                        CounterUiModel.Success(
+                            counters = response.data,
+                            items = response.data.size,
+                            times = countTimes(response.data)
+                        )
+                    )
                 }
                 is Error -> {
                     sendErrorMessage()
                 }
             }
         }
+    }
+
+    private fun countTimes(counters: List<Counter>): Int {
+        var times = 0
+
+        counters.forEach {
+            times += it.count
+        }
+
+        return times
     }
 
     private fun sendErrorMessage() {
@@ -55,6 +72,10 @@ class MainPresenter @Inject constructor(
                 message = AndroidHelper.getString(R.string.couldnt_load_the_counters_message)
             )
         )
+    }
+
+    override fun onCreateScope() {
+        createScope()
     }
 
     override fun onDestroyScope() {
