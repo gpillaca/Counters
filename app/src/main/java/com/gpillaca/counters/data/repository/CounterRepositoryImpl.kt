@@ -10,7 +10,12 @@ import javax.inject.Inject
 class CounterRepositoryImpl @Inject constructor(
     private val remoteDataSource: RemoteDataSource
 ) : CounterRepository {
+
     override suspend fun listCounters(): OperationResults<Counter> = withContext(Dispatchers.IO) {
         remoteDataSource.listCounters()
+    }
+
+    override suspend fun addCounter(title: String): OperationResults<Counter> = withContext(Dispatchers.IO) {
+        remoteDataSource.addCounter(title)
     }
 }
