@@ -1,12 +1,12 @@
-package com.gpillaca.counters.ui
+package com.gpillaca.counters.ui.onboarding
 
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import com.gpillaca.counters.MainActivity
+import androidx.appcompat.app.AppCompatActivity
+import com.gpillaca.counters.ui.main.MainActivity
 import com.gpillaca.counters.R
 import com.gpillaca.counters.databinding.ActivityOnBoardingBinding
 
@@ -22,6 +22,8 @@ class OnBoardingActivity : AppCompatActivity(), View.OnClickListener {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             window.statusBarColor = Color.BLACK
         }
+
+        binding.buttonStarted.setOnClickListener(this)
     }
 
     private fun navigateToMain() {
