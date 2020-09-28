@@ -30,9 +30,12 @@
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="false" />
-
         <activity
             android:name=".ui.addcounter.AddCounterActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.example.ExampleCounterActivity"
             android:exported="false" />
     </application>
 

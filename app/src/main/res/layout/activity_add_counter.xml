@@ -51,7 +51,7 @@
         android:id="@+id/textInputLayoutName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="45dp"
+        android:layout_marginTop="20dp"
         app:hintEnabled="false"
         app:layout_constraintEnd_toEndOf="@+id/guideLineVerticalEnd"
         app:layout_constraintStart_toStartOf="@+id/guideLineVerticalStart"
