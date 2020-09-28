@@ -9,5 +9,7 @@ interface MainContract {
 
     interface Presenter : BaseContract.Presenter {
         fun loadCounters()
+        fun incrementCounter(id: String)
+        fun decrementCounter(id: String)
     }
 }

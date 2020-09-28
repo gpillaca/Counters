@@ -15,7 +15,8 @@ typealias OnClickListener = (counter: Counter, action: CounterAction) -> Unit
 enum class CounterAction {
     DELETE,
     PLUS,
-    LESS
+    LESS,
+    DIALOG
 }
 
 class CounterAdapter(
@@ -35,7 +36,7 @@ class CounterAdapter(
             override fun getOldListSize(): Int = oldValue.size
 
             override fun getNewListSize(): Int = newValue.size
-        })
+        }).dispatchUpdatesTo(this)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CounterViewHolder {
@@ -67,6 +68,15 @@ class CounterAdapter(
             }
 
             binding.buttonLess.setOnClickListener {
+                binding.buttonLess.isEnabled = true
+                binding.buttonLess.setImageResource(R.drawable.ic_less)
+
+                if (counter.count == 0) {
+                    binding.buttonLess.isEnabled = false
+                    binding.buttonLess.setImageResource(R.drawable.ic_less_gray)
+                    onClickListener(counter, CounterAction.DIALOG)
+                    return@setOnClickListener
+                }
                 onClickListener(counter, CounterAction.LESS)
             }
         }
