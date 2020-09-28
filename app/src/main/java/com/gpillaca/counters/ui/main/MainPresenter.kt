@@ -19,12 +19,56 @@ class MainPresenter @Inject constructor(
         onCreateScope()
     }
 
+    override fun deleteCounters(counters: List<Counter>) {
+        if (!AndroidHelper.hasNetworkConnection()) {
+            sendErrorMessage(action = RetryAction.DELETE)
+            return
+        }
+
+        launch {
+            val deleteCounters = counters.filter { it.isSelected }
+            deleteCounters.forEach {
+                deleteCounter(it.id)
+            }
+        }
+    }
+
+    private suspend fun deleteCounter(id: String) {
+        view.show(CounterUiModel.Loading)
+
+        when (val response = counterRepository.deleteCounter(id)) {
+            is Success -> {
+                if (response.data.isEmpty()) {
+                    view.show(
+                        CounterUiModel.Message(
+                            title = AndroidHelper.getString(R.string.no_counters_yet),
+                            message = AndroidHelper.getString(R.string.no_counters_yet_message)
+                        )
+                    )
+                    return
+                }
+
+                view.show(
+                    CounterUiModel.Success(
+                        counters = response.data,
+                        items = response.data.size,
+                        times = countTimes(response.data)
+                    )
+                )
+            }
+            is Error -> {
+                sendErrorMessage(action = RetryAction.DELETE)
+            }
+        }
+
+    }
+
     override fun loadCounters() {
         launch {
             view.show(CounterUiModel.Loading)
 
             if (!AndroidHelper.hasNetworkConnection()) {
-                sendErrorMessage()
+                sendErrorMessage(action = RetryAction.LOAD)
                 return@launch
             }
 
@@ -49,7 +93,7 @@ class MainPresenter @Inject constructor(
                     )
                 }
                 is Error -> {
-                    sendErrorMessage()
+                    sendErrorMessage(action = RetryAction.LOAD)
                 }
             }
         }
@@ -103,11 +147,12 @@ class MainPresenter @Inject constructor(
         return times
     }
 
-    private fun sendErrorMessage() {
+    private fun sendErrorMessage(action: RetryAction = RetryAction.LOAD) {
         view.show(
             CounterUiModel.Error(
                 title = AndroidHelper.getString(R.string.couldnt_load_the_counters),
-                message = AndroidHelper.getString(R.string.couldnt_load_the_counters_message)
+                message = AndroidHelper.getString(R.string.couldnt_load_the_counters_message),
+                retryAction = action
             )
         )
     }
