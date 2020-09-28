@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="drinks">
+        <item>Cups of coffee</item>
+        <item>Glasses of water</item>
+    </string-array>
+
+    <string-array name="food">
+        <item>Hot-dogs</item>
+        <item>Cupcakes eaten</item>
+        <item>Chicken sandwich</item>
+    </string-array>
+
+    <string-array name="misc">
+        <item>Times sneezed</item>
+        <item>Naps</item>
+        <item>Day dreaming</item>
+    </string-array>
+</resources>

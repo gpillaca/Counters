@@ -1,6 +1,7 @@
 package com.gpillaca.counters.ui.addcounter
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -9,9 +10,12 @@ import androidx.appcompat.app.AppCompatActivity
 import com.gpillaca.counters.R
 import com.gpillaca.counters.databinding.ActivityAddCounterBinding
 import com.gpillaca.counters.ui.addcounter.AddCounterUiModel.*
+import com.gpillaca.counters.ui.example.ExampleCounterActivity
 import com.gpillaca.counters.util.DialogHelper
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+
+private const val REQUEST_CODE_ACTIVITY_EXAMPLE = 0
 
 @AndroidEntryPoint
 class AddCounterActivity : AppCompatActivity(), AddCounterContract.View, View.OnClickListener {
@@ -103,8 +107,18 @@ class AddCounterActivity : AppCompatActivity(), AddCounterContract.View, View.On
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_CODE_ACTIVITY_EXAMPLE && resultCode == Activity.RESULT_OK) {
+            val counterName = data?.getStringExtra(ExampleCounterActivity.PARAM_COUNTER_NAME) ?: ""
+            binding.textInputEditTextName.setText(counterName)
+        }
+    }
+
     private fun navigateToExamples() {
-        //TODO Navigate to examples
+        val intent = Intent(this, ExampleCounterActivity::class.java)
+        startActivityForResult(intent, REQUEST_CODE_ACTIVITY_EXAMPLE)
     }
 
     private fun saveCounter() {
