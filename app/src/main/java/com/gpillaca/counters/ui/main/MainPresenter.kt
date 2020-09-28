@@ -55,6 +55,44 @@ class MainPresenter @Inject constructor(
         }
     }
 
+    override fun incrementCounter(id: String) {
+        launch {
+            when (val response = counterRepository.increment(id)) {
+                is Success -> {
+                    view.show(
+                        CounterUiModel.Success(
+                            counters = response.data,
+                            items = response.data.size,
+                            times = countTimes(response.data)
+                        )
+                    )
+                }
+                is Error -> {
+                    sendErrorMessage()
+                }
+            }
+        }
+    }
+
+    override fun decrementCounter(id: String) {
+        launch {
+            when (val response = counterRepository.decrement(id)) {
+                is Success -> {
+                    view.show(
+                        CounterUiModel.Success(
+                            counters = response.data,
+                            items = response.data.size,
+                            times = countTimes(response.data)
+                        )
+                    )
+                }
+                is Error -> {
+                    sendErrorMessage()
+                }
+            }
+        }
+    }
+
     private fun countTimes(counters: List<Counter>): Int {
         var times = 0
 

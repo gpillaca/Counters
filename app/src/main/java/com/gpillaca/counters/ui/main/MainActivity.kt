@@ -13,6 +13,7 @@ import com.gpillaca.counters.domain.Counter
 import com.gpillaca.counters.ui.addcounter.AddCounterActivity
 import com.gpillaca.counters.ui.main.CounterAction.*
 import com.gpillaca.counters.ui.main.CounterUiModel.*
+import com.gpillaca.counters.util.DialogHelper
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -59,6 +60,9 @@ class MainActivity : AppCompatActivity(),
                 DELETE -> {
                     deleteCounter(counter)
                 }
+                DIALOG -> {
+                    showDialogCounter()
+                }
             }
         }
 
@@ -67,14 +71,23 @@ class MainActivity : AppCompatActivity(),
         binding.recyclerViewCounters.addItemDecoration(CounterItemDecorator())
     }
 
+    private fun showDialogCounter() {
+        val dialog = DialogHelper(this).apply {
+            this.title = R.string.couldnt_update_counter
+            this.message = R.string.couldnt_update_counter_message
+            cancelable = true
+            onPositiveButton(R.string.retry) { presenter.loadCounters() }
+            onNegativeButton(R.string.dismiss) { dialog.dismiss() }
+        }.create()
+        dialog.show()
+    }
+
     private fun plusCounter(counter: Counter) {
-        //TODO Implement function
-        Toast.makeText(this, "${counter.title} PLUS", Toast.LENGTH_SHORT).show()
+        presenter.incrementCounter(counter.id)
     }
 
     private fun lessCounter(counter: Counter) {
-        //TODO Implement function
-        Toast.makeText(this, "${counter.title} LESS", Toast.LENGTH_SHORT).show()
+        presenter.decrementCounter(counter.id)
     }
 
     private fun deleteCounter(counter: Counter) {
@@ -86,7 +99,11 @@ class MainActivity : AppCompatActivity(),
         binding.progressBar.visibility = if (counterUiModel is Loading) View.VISIBLE else View.GONE
 
         when (counterUiModel) {
-            is Success -> showCounters(counterUiModel.counters, counterUiModel.items, counterUiModel.times)
+            is Success -> showCounters(
+                counterUiModel.counters,
+                counterUiModel.items,
+                counterUiModel.times
+            )
             is Message -> showMessage(counterUiModel.title, counterUiModel.message)
             is Error -> showError(counterUiModel.title, counterUiModel.message)
         }

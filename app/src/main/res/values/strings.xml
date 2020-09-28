@@ -21,4 +21,6 @@
     <string name="dismiss">Dismiss</string>
     <string name="hint_example_add_counter">Cups of coffee</string>
     <string name="add_counter_name">Please, add a counter name</string>
+    <string name="couldnt_update_counter">Couldn’t update the “Apples eaten” counter to 1</string>
+    <string name="couldnt_update_counter_message">The Internet connection appears to be offline.</string>
 </resources>

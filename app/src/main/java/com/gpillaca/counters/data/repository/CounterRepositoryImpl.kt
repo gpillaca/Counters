@@ -18,4 +18,12 @@ class CounterRepositoryImpl @Inject constructor(
     override suspend fun addCounter(title: String): OperationResults<Counter> = withContext(Dispatchers.IO) {
         remoteDataSource.addCounter(title)
     }
+
+    override suspend fun increment(id: String): OperationResults<Counter> = withContext(Dispatchers.IO) {
+        remoteDataSource.incrementCounter(id)
+    }
+
+    override suspend fun decrement(id: String): OperationResults<Counter> = withContext(Dispatchers.IO) {
+        remoteDataSource.decrementCounter(id)
+    }
 }
