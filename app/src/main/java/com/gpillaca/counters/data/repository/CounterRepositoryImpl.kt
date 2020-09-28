@@ -26,4 +26,8 @@ class CounterRepositoryImpl @Inject constructor(
     override suspend fun decrement(id: String): OperationResults<Counter> = withContext(Dispatchers.IO) {
         remoteDataSource.decrementCounter(id)
     }
+
+    override suspend fun deleteCounter(id: String): OperationResults<Counter> = withContext(Dispatchers.IO) {
+        remoteDataSource.deleteCounter(id)
+    }
 }

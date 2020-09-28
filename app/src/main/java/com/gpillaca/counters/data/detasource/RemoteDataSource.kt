@@ -8,4 +8,5 @@ interface RemoteDataSource {
     suspend fun addCounter(title: String): OperationResults<Counter>
     suspend fun incrementCounter(id: String): OperationResults<Counter>
     suspend fun decrementCounter(id: String): OperationResults<Counter>
+    suspend fun deleteCounter(id: String): OperationResults<Counter>
 }

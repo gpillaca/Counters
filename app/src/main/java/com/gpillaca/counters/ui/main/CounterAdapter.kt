@@ -1,5 +1,6 @@
 package com.gpillaca.counters.ui.main
 
+import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +11,8 @@ import com.gpillaca.counters.databinding.ItemCounterBinding
 import com.gpillaca.counters.domain.Counter
 import kotlin.properties.Delegates
 
-typealias OnClickListener = (counter: Counter, action: CounterAction) -> Unit
+typealias OnClickCounterListener = (counter: Counter, action: CounterAction) -> Unit
+typealias OnLongClickCounterListener = () -> Unit
 
 enum class CounterAction {
     DELETE,
@@ -20,9 +22,11 @@ enum class CounterAction {
 }
 
 class CounterAdapter(
-    private val onClickListener: OnClickListener
+    private val onClickCounterListener: OnClickCounterListener,
+    private val onLongClickCounterListener: OnLongClickCounterListener
 ) : RecyclerView.Adapter<CounterAdapter.CounterViewHolder>() {
 
+    var selectedItems = SparseBooleanArray()
     var counters: List<Counter> by Delegates.observable(listOf()) { _, oldValue, newValue ->
         DiffUtil.calculateDiff(object : DiffUtil.Callback() {
             override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
@@ -48,37 +52,73 @@ class CounterAdapter(
 
     override fun onBindViewHolder(holder: CounterViewHolder, position: Int) {
         val counter = counters[position]
-        holder.bind(counter, onClickListener)
+        holder.bind(counter, onClickCounterListener)
+        hideQuantityButtons(holder, selectedItems.size() > 0)
+
+        holder.itemView.setOnLongClickListener {
+            toggleSelection(position)
+            onLongClickCounterListener()
+            true
+        }
+    }
+
+    private fun hideQuantityButtons(holder: CounterViewHolder, value: Boolean) {
+        holder.binding.buttonPlus.visibility = if (value) View.GONE else View.VISIBLE
+        holder.binding.buttonLess.visibility = if (value) View.GONE else View.VISIBLE
+        holder.binding.textViewValue.visibility = if (value) View.GONE else View.VISIBLE
+    }
+
+    fun clearSelection() {
+        selectedItems.clear()
+        counters.map {
+            it.isSelected = false
+        }
+    }
+
+    private fun toggleSelection(position: Int) {
+        if (selectedItems.get(position)) {
+            selectedItems.delete(position)
+            counters[position].isSelected = false
+        } else {
+            selectedItems.put(position, true)
+            counters[position].isSelected = true
+        }
+
+        if (selectedItems.size() <= 1) {
+            notifyDataSetChanged()
+        } else {
+            notifyItemChanged(position)
+        }
     }
 
     class CounterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val binding = ItemCounterBinding.bind(view.rootView)
+        val binding = ItemCounterBinding.bind(view.rootView)
 
-        fun bind(counter: Counter, onClickListener: OnClickListener) {
+        fun bind(counter: Counter, onClickCounterListener: OnClickCounterListener) {
+            selectedItem(counter.isSelected)
             binding.textViewName.text = counter.title
             binding.textViewValue.text = counter.count.toString()
-
-            binding.root.setOnLongClickListener {
-                onClickListener(counter, CounterAction.DELETE)
-                true
-            }
-
             binding.buttonPlus.setOnClickListener {
-                onClickListener(counter, CounterAction.PLUS)
+                onClickCounterListener(counter, CounterAction.PLUS)
             }
 
             binding.buttonLess.setOnClickListener {
-                binding.buttonLess.isEnabled = true
-                binding.buttonLess.setImageResource(R.drawable.ic_less)
-
                 if (counter.count == 0) {
                     binding.buttonLess.isEnabled = false
                     binding.buttonLess.setImageResource(R.drawable.ic_less_gray)
-                    onClickListener(counter, CounterAction.DIALOG)
+                    onClickCounterListener(counter, CounterAction.DIALOG)
                     return@setOnClickListener
                 }
-                onClickListener(counter, CounterAction.LESS)
+
+                binding.buttonLess.isEnabled = true
+                binding.buttonLess.setImageResource(R.drawable.ic_less)
+                onClickCounterListener(counter, CounterAction.LESS)
             }
+        }
+
+        private fun selectedItem(isSelected: Boolean) {
+            binding.viewItemBackground.visibility = if (isSelected) View.VISIBLE else View.GONE
+            binding.buttonCheck.visibility = if (isSelected) View.VISIBLE else View.GONE
         }
     }
 }

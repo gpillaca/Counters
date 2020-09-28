@@ -17,6 +17,7 @@
     <string name="create_counter">Create counter</string>
     <string name="save">Save</string>
     <string name="ok">OK</string>
+    <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
     <string name="dismiss">Dismiss</string>
     <string name="examples">Examples</string>
@@ -28,4 +29,7 @@
     <string name="drinks">Drinks</string>
     <string name="food">Food</string>
     <string name="misc">Misc</string>
+    <string name="confirm_delete_message">Delete “Records played”?</string>
+    <string name="delete_title">%s selected</string>
+    <string name="select_one_item">Select 1 item</string>
 </resources>
