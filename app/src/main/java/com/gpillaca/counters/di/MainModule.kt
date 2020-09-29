@@ -36,6 +36,10 @@ class MainUseCaseModule {
     @Provides
     fun incrementCounterProvider(incrementCounterImpl: IncrementCounterImpl): IncrementCounter =
         incrementCounterImpl
+
+    @Provides
+    fun decrementCounterProvider(decrementCounterImpl: DecrementCounterImpl): DecrementCounter =
+        decrementCounterImpl
 }
 
 @InstallIn(ActivityComponent::class)
