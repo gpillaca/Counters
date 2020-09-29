@@ -8,6 +8,7 @@ import com.gpillaca.counters.ui.common.OperationResults.Success
 import com.gpillaca.counters.ui.common.Scope
 import com.gpillaca.counters.usecases.DeleteCounter
 import com.gpillaca.counters.usecases.GetCounters
+import com.gpillaca.counters.usecases.IncrementCounter
 import com.gpillaca.counters.util.AndroidHelper
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -16,7 +17,8 @@ class MainPresenter @Inject constructor(
     private val view: MainContract.View,
     private val counterRepository: CounterRepository,
     private val getCounters: GetCounters,
-    private val deleteCounter: DeleteCounter
+    private val deleteCounter: DeleteCounter,
+    private val incrementCounter: IncrementCounter
 ) : MainContract.Presenter, Scope by Scope.Impl() {
 
     init {
@@ -105,7 +107,7 @@ class MainPresenter @Inject constructor(
 
     override fun incrementCounter(id: String) {
         launch {
-            when (val response = counterRepository.increment(id)) {
+            when (val response = incrementCounter.invoke(id)) {
                 is Success -> {
                     view.show(
                         CounterUiModel.Success(

@@ -4,10 +4,7 @@ import android.app.Activity
 import com.gpillaca.counters.ui.main.MainActivity
 import com.gpillaca.counters.ui.main.MainContract
 import com.gpillaca.counters.ui.main.MainPresenter
-import com.gpillaca.counters.usecases.DeleteCounter
-import com.gpillaca.counters.usecases.DeleteCounterImpl
-import com.gpillaca.counters.usecases.GetCounters
-import com.gpillaca.counters.usecases.GetCountersImpl
+import com.gpillaca.counters.usecases.*
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -33,8 +30,12 @@ class MainUseCaseModule {
     fun getCountersProvider(getCountersImpl: GetCountersImpl): GetCounters = getCountersImpl
 
     @Provides
-    fun deleteCountersProvider(deleteCounterImpl: DeleteCounterImpl): DeleteCounter =
+    fun deleteCounterProvider(deleteCounterImpl: DeleteCounterImpl): DeleteCounter =
         deleteCounterImpl
+
+    @Provides
+    fun incrementCounterProvider(incrementCounterImpl: IncrementCounterImpl): IncrementCounter =
+        incrementCounterImpl
 }
 
 @InstallIn(ActivityComponent::class)
