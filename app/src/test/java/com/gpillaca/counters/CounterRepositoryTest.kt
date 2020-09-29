@@ -4,6 +4,7 @@ import com.gpillaca.counters.data.detasource.RemoteDataSource
 import com.gpillaca.counters.data.repository.CounterRepository
 import com.gpillaca.counters.data.repository.CounterRepositoryImpl
 import com.gpillaca.counters.ui.common.OperationResults
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -52,6 +53,7 @@ class CounterRepositoryTest {
         )
         val result = remoteDataSource.addCounter(title)
 
+        verify(remoteDataSource).addCounter(title)
         assertEquals(OperationResults.Success(databaseCounters), result)
     }
 
@@ -62,7 +64,7 @@ class CounterRepositoryTest {
 
         whenever(remoteDataSource.deleteCounter(id)).thenReturn(
             OperationResults.Success(
-                mockedCounters
+                databaseCounters
             )
         )
 
@@ -78,7 +80,7 @@ class CounterRepositoryTest {
 
         whenever(remoteDataSource.incrementCounter(id)).thenReturn(
             OperationResults.Success(
-                mockedCounters
+                databaseCounters
             )
         )
 
@@ -94,7 +96,7 @@ class CounterRepositoryTest {
 
         whenever(remoteDataSource.decrementCounter(id)).thenReturn(
             OperationResults.Success(
-                mockedCounters
+                databaseCounters
             )
         )
 
