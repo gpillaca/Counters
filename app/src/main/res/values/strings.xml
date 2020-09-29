@@ -32,4 +32,5 @@
     <string name="confirm_delete_message">Delete “Records played”?</string>
     <string name="delete_title">%s selected</string>
     <string name="select_one_item">Select 1 item</string>
+    <string name="no_results">No results</string>
 </resources>

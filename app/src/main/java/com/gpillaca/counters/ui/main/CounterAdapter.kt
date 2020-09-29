@@ -4,15 +4,20 @@ import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.gpillaca.counters.R
 import com.gpillaca.counters.databinding.ItemCounterBinding
 import com.gpillaca.counters.domain.Counter
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 
 typealias OnClickCounterListener = (counter: Counter, action: CounterAction) -> Unit
 typealias OnLongClickCounterListener = () -> Unit
+typealias Lister = (counters: List<Counter>) -> Unit
 
 enum class CounterAction {
     DELETE,
@@ -23,8 +28,9 @@ enum class CounterAction {
 
 class CounterAdapter(
     private val onClickCounterListener: OnClickCounterListener,
-    private val onLongClickCounterListener: OnLongClickCounterListener
-) : RecyclerView.Adapter<CounterAdapter.CounterViewHolder>() {
+    private val onLongClickCounterListener: OnLongClickCounterListener,
+    private val lister: Lister
+) : RecyclerView.Adapter<CounterAdapter.CounterViewHolder>(), Filterable {
 
     var selectedItems = SparseBooleanArray()
     var counters: List<Counter> by Delegates.observable(listOf()) { _, oldValue, newValue ->
@@ -43,6 +49,8 @@ class CounterAdapter(
         }).dispatchUpdatesTo(this)
     }
 
+    var countersTemp: List<Counter> = emptyList()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CounterViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_counter, parent, false)
         return CounterViewHolder(view)
@@ -56,9 +64,43 @@ class CounterAdapter(
         hideQuantityButtons(holder, selectedItems.size() > 0)
 
         holder.itemView.setOnLongClickListener {
-            toggleSelection(position)
+            toggleSelection(holder.adapterPosition)
             onLongClickCounterListener()
             true
+        }
+    }
+
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(constraint: CharSequence): FilterResults {
+                val charSearch = constraint.toString()
+
+                if (countersTemp.isEmpty()) {
+                    countersTemp = counters
+                }
+
+                var filterList = emptyList<Counter>()
+
+                if (constraint.isEmpty()) {
+                    filterList = countersTemp
+                    countersTemp = emptyList()
+                } else {
+                    filterList = counters.filter {
+                        it.title.toLowerCase(Locale.ROOT)
+                            .contains(charSearch.toLowerCase(Locale.ROOT))
+                    }
+                }
+
+                val filterResults = FilterResults()
+                filterResults.values = filterList
+                return filterResults
+            }
+
+            @Suppress("UNCHECKED_CAST")
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                counters = results?.values as ArrayList<Counter>
+                lister(counters)
+            }
         }
     }
 
