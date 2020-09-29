@@ -17,10 +17,10 @@ class DataModule {
     @Provides
     fun retrofitDataSourceProvider(
         counterDbService: CounterDbService
-    ) : RemoteDataSource = RetrofitDataSource(counterDbService)
+    ): RemoteDataSource = RetrofitDataSource(counterDbService)
 
     @Provides
     fun counterRepositoryProvider(
         remoteDataSource: RemoteDataSource
-    ) : CounterRepository = CounterRepositoryImpl(remoteDataSource)
+    ): CounterRepository = CounterRepositoryImpl(remoteDataSource)
 }

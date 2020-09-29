@@ -1,12 +1,13 @@
 package com.gpillaca.counters.di
 
 import android.app.Activity
-import com.gpillaca.counters.data.repository.CounterRepositoryImpl
-import com.gpillaca.counters.domain.Counter
-import com.gpillaca.counters.ui.common.OperationResults
 import com.gpillaca.counters.ui.main.MainActivity
 import com.gpillaca.counters.ui.main.MainContract
 import com.gpillaca.counters.ui.main.MainPresenter
+import com.gpillaca.counters.usecases.DeleteCounter
+import com.gpillaca.counters.usecases.DeleteCounterImpl
+import com.gpillaca.counters.usecases.GetCounters
+import com.gpillaca.counters.usecases.GetCountersImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -22,9 +23,18 @@ abstract class MainModule {
 
     @Binds
     abstract fun bindPresenter(mainPresenter: MainPresenter): MainContract.Presenter
+}
 
-    @Binds
-    abstract fun bindGetCounters(counterRepositoryImpl: CounterRepositoryImpl): OperationResults<Counter>
+@InstallIn(ActivityComponent::class)
+@Module
+class MainUseCaseModule {
+
+    @Provides
+    fun getCountersProvider(getCountersImpl: GetCountersImpl): GetCounters = getCountersImpl
+
+    @Provides
+    fun deleteCountersProvider(deleteCounterImpl: DeleteCounterImpl): DeleteCounter =
+        deleteCounterImpl
 }
 
 @InstallIn(ActivityComponent::class)
