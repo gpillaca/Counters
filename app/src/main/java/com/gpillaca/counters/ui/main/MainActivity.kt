@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gpillaca.counters.R
 import com.gpillaca.counters.databinding.ActivityMainBinding
@@ -69,6 +70,7 @@ class MainActivity : AppCompatActivity(),
 
     private fun showToolbar(value: Boolean) {
         binding.toolbar.visibility = if (value) View.VISIBLE else View.GONE
+        binding.appBarLayout.visibility = if (value) View.VISIBLE else View.GONE
     }
 
     private fun showSearch(value: Boolean) {
@@ -77,17 +79,31 @@ class MainActivity : AppCompatActivity(),
 
     private fun resetAdapter() {
         counterAdapter.clearSelection()
+        counterAdapter.countersTemp = emptyList()
     }
 
     private fun initViews() {
         binding.toolbarButtonDelete.setOnClickListener(this)
         binding.toolbarButtonShare.setOnClickListener(this)
         binding.buttonAddCounter.setOnClickListener(this)
+        binding.layoutSearch.root.setOnClickListener(this)
         binding.swipeRefreshLayout.setColorSchemeResources(R.color.color_accent)
         binding.swipeRefreshLayout.setOnRefreshListener {
             presenter.loadCounters()
             binding.swipeRefreshLayout.isRefreshing = false
         }
+
+        binding.editTextName.doOnTextChanged { text, _, _, count ->
+            if (count > 0) {
+                binding.imageButtonCancel.visibility = View.VISIBLE
+            } else {
+                binding.imageButtonCancel.visibility = View.GONE
+            }
+
+            counterAdapter.filter.filter(text)
+        }
+        binding.imageButtonBack.setOnClickListener(this)
+        binding.imageButtonCancel.setOnClickListener(this)
     }
 
     private fun initAdapter() {
@@ -120,6 +136,20 @@ class MainActivity : AppCompatActivity(),
                     showToolbar(true)
                     showSearch(false)
                 }
+            },
+            lister = { counters ->
+                if (counters.isEmpty()) {
+                    binding.textViewLabelNoResults.visibility = View.VISIBLE
+                } else {
+                    binding.textViewLabelNoResults.visibility = View.GONE
+                }
+
+                var times = 0
+                counters.forEach {
+                    times += it.count
+                }
+
+                showNumbersOfItems(counters.size, times)
             }
         )
         binding.recyclerViewCounters.layoutManager =
@@ -303,6 +333,22 @@ class MainActivity : AppCompatActivity(),
                 }
 
                 shareCounters()
+            }
+            R.id.layoutSearch -> {
+                binding.editTextName.setText("")
+                binding.appBarLayout.visibility = View.VISIBLE
+                binding.constraintLayoutSearch.visibility = View.VISIBLE
+                binding.layoutSearch.root.visibility = View.GONE
+                binding.editTextName.requestFocus()
+            }
+            R.id.imageButtonBack -> {
+                binding.appBarLayout.visibility = View.GONE
+                binding.layoutSearch.root.visibility = View.VISIBLE
+                binding.constraintLayoutSearch.visibility = View.GONE
+                binding.editTextName.setText("")
+            }
+            R.id.imageButtonCancel -> {
+                binding.editTextName.setText("")
             }
         }
     }
