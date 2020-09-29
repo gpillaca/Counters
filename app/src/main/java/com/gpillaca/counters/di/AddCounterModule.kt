@@ -4,6 +4,8 @@ import android.app.Activity
 import com.gpillaca.counters.ui.addcounter.AddCounterActivity
 import com.gpillaca.counters.ui.addcounter.AddCounterContract
 import com.gpillaca.counters.ui.addcounter.AddCounterPresenter
+import com.gpillaca.counters.usecases.AddCounter
+import com.gpillaca.counters.usecases.AddCounterImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -19,6 +21,14 @@ abstract class AddCounterModule {
 
     @Binds
     abstract fun bindPresenter(addCounterPresenter: AddCounterPresenter): AddCounterContract.Presenter
+}
+
+@InstallIn(ActivityComponent::class)
+@Module
+class AddCounterUseCasesModule {
+
+    @Provides
+    fun addCounterProvider(addCounterImpl: AddCounterImpl): AddCounter = addCounterImpl
 }
 
 @InstallIn(ActivityComponent::class)

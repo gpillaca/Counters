@@ -1,18 +1,22 @@
 package com.gpillaca.counters.ui.main
 
 import com.gpillaca.counters.R
-import com.gpillaca.counters.data.repository.CounterRepository
 import com.gpillaca.counters.domain.Counter
 import com.gpillaca.counters.ui.common.OperationResults.Error
 import com.gpillaca.counters.ui.common.OperationResults.Success
 import com.gpillaca.counters.ui.common.Scope
+import com.gpillaca.counters.usecases.DeleteCounter
+import com.gpillaca.counters.usecases.GetCounters
+import com.gpillaca.counters.usecases.IncrementCounter
 import com.gpillaca.counters.util.AndroidHelper
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainPresenter @Inject constructor(
     private val view: MainContract.View,
-    private val counterRepository: CounterRepository
+    private val getCounters: GetCounters,
+    private val deleteCounter: DeleteCounter,
+    private val incrementCounter: IncrementCounter
 ) : MainContract.Presenter, Scope by Scope.Impl() {
 
     init {
@@ -36,7 +40,7 @@ class MainPresenter @Inject constructor(
     private suspend fun deleteCounter(id: String) {
         view.show(CounterUiModel.Loading)
 
-        when (val response = counterRepository.deleteCounter(id)) {
+        when (val response = deleteCounter.invoke(id)) {
             is Success -> {
                 if (response.data.isEmpty()) {
                     view.show(
@@ -72,7 +76,7 @@ class MainPresenter @Inject constructor(
                 return@launch
             }
 
-            when (val response = counterRepository.listCounters()) {
+            when (val response = getCounters.invoke()) {
                 is Success -> {
                     if (response.data.isEmpty()) {
                         view.show(
@@ -101,7 +105,7 @@ class MainPresenter @Inject constructor(
 
     override fun incrementCounter(id: String) {
         launch {
-            when (val response = counterRepository.increment(id)) {
+            when (val response = incrementCounter.invoke(id)) {
                 is Success -> {
                     view.show(
                         CounterUiModel.Success(
@@ -120,7 +124,7 @@ class MainPresenter @Inject constructor(
 
     override fun decrementCounter(id: String) {
         launch {
-            when (val response = counterRepository.decrement(id)) {
+            when (val response = deleteCounter.invoke(id)) {
                 is Success -> {
                     view.show(
                         CounterUiModel.Success(
