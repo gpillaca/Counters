@@ -15,7 +15,7 @@ interface CounterDbService {
     @POST("api/v1/counter/dec")
     suspend fun decrementCounter(@Body data: Map<String, String>): List<Counter>
 
-    //@DELETE("api/v1/counter")
+    //TODO @DELETE("api/v1/counter")
     @HTTP(method = "DELETE", hasBody = true, path = "api/v1/counter")
     suspend fun deleteCounter(@Body data: Map<String, String>): List<Counter>
 }
