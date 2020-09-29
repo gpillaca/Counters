@@ -24,7 +24,7 @@ abstract class MainModule {
 
 @InstallIn(ActivityComponent::class)
 @Module
-class MainUseCaseModule {
+class MainUseCasesModule {
 
     @Provides
     fun getCountersProvider(getCountersImpl: GetCountersImpl): GetCounters = getCountersImpl

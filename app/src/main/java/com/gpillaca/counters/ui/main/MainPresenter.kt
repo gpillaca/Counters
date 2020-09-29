@@ -1,7 +1,6 @@
 package com.gpillaca.counters.ui.main
 
 import com.gpillaca.counters.R
-import com.gpillaca.counters.data.repository.CounterRepository
 import com.gpillaca.counters.domain.Counter
 import com.gpillaca.counters.ui.common.OperationResults.Error
 import com.gpillaca.counters.ui.common.OperationResults.Success
@@ -15,7 +14,6 @@ import javax.inject.Inject
 
 class MainPresenter @Inject constructor(
     private val view: MainContract.View,
-    private val counterRepository: CounterRepository,
     private val getCounters: GetCounters,
     private val deleteCounter: DeleteCounter,
     private val incrementCounter: IncrementCounter
@@ -126,7 +124,7 @@ class MainPresenter @Inject constructor(
 
     override fun decrementCounter(id: String) {
         launch {
-            when (val response = counterRepository.decrement(id)) {
+            when (val response = deleteCounter.invoke(id)) {
                 is Success -> {
                     view.show(
                         CounterUiModel.Success(
