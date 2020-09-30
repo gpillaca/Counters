@@ -8,4 +8,5 @@ interface LocalDataSource {
     suspend fun isEmpty(): Boolean
     suspend fun deleteAll()
     suspend fun deleteCounter(counter: Counter)
+    suspend fun updateCounter(counter: Counter)
 }

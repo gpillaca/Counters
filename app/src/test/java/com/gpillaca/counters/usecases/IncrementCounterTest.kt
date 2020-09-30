@@ -27,14 +27,14 @@ class IncrementCounterTest {
 
     @Test
     fun `invoke calls counter repository`() = runBlocking {
-        val id = "111"
+        val counter = mockedCounter
         val counters = listOf(mockedCounter.copy(id = "qwerty"))
 
-        whenever(counterRepository.increment(id)).thenReturn(
+        whenever(counterRepository.increment(counter)).thenReturn(
             OperationResults.Success(counters)
         )
 
-        val result = incrementCounter.invoke(id)
+        val result = incrementCounter.invoke(counter)
 
         Assert.assertEquals(OperationResults.Success(counters), result)
     }

@@ -1,7 +1,6 @@
 package com.gpillaca.counters.usecases
 
 import com.gpillaca.counters.data.repository.CounterRepository
-import com.gpillaca.counters.domain.Counter
 import com.gpillaca.counters.mockedCounter
 import com.gpillaca.counters.ui.common.OperationResults
 import com.nhaarman.mockitokotlin2.whenever
@@ -28,14 +27,14 @@ class DecrementCounterTest {
 
     @Test
     fun `invoke calls counter repository`() = runBlocking {
-        val id = "qwerty"
+        val counter = mockedCounter
         val counters = listOf(mockedCounter.copy(id = "qwerty"))
 
-        whenever(counterRepository.decrement(id)).thenReturn(
+        whenever(counterRepository.decrement(counter)).thenReturn(
             OperationResults.Success(counters)
         )
 
-        val result =  decrementCounter.invoke(id)
+        val result =  decrementCounter.invoke(counter)
 
         Assert.assertEquals(OperationResults.Success(counters), result)
     }

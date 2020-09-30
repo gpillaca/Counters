@@ -15,4 +15,7 @@ sealed class CounterUiModel {
     data class Message(val title: String, val message: String) : CounterUiModel()
     data class Success(val counters: List<Counter>, val items: Int, val times: Int) :
         CounterUiModel()
+
+    data class Update(val counter: Counter, val items: Int, val times: Int) :
+        CounterUiModel()
 }

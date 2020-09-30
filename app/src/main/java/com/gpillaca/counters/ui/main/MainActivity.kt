@@ -182,11 +182,11 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun plusCounter(counter: Counter) {
-        presenter.incrementCounter(counter.id)
+        presenter.incrementCounter(counter)
     }
 
     private fun lessCounter(counter: Counter) {
-        presenter.decrementCounter(counter.id)
+        presenter.decrementCounter(counter)
     }
 
     private fun deleteCounter(counter: Counter) {
@@ -211,6 +211,10 @@ class MainActivity : AppCompatActivity(),
             }
             is Error -> {
                 showError(counterUiModel.title, counterUiModel.message, counterUiModel.retryAction)
+            }
+            is Update -> {
+                showNumbersOfItems(counterUiModel.items, counterUiModel.times)
+                counterAdapter.upDateCounter(counterUiModel.counter)
             }
         }
     }

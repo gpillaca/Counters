@@ -34,22 +34,49 @@ class CounterRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addCounter(title: String): OperationResults<Counter> = withContext(Dispatchers.IO) {
-        remoteDataSource.addCounter(title)
+        when (val result = remoteDataSource.addCounter(title)) {
+            is OperationResults.Success -> {
+                localDataSource.deleteAll()
+                localDataSource.saveCounters(result.data)
+                OperationResults.Success(localDataSource.getAllCounters())
+            }
+            is OperationResults.Error -> {
+                OperationResults.Error(result.exception)
+            }
+        }
     }
 
-    override suspend fun increment(id: String): OperationResults<Counter> = withContext(Dispatchers.IO) {
-        remoteDataSource.incrementCounter(id)
+    override suspend fun increment(counter: Counter): OperationResults<Counter> = withContext(Dispatchers.IO) {
+        when (val result = remoteDataSource.incrementCounter(counter.id)) {
+            is OperationResults.Success -> {
+                val newCounter: Counter = result.data.filter { it.id == counter.id }[0]
+                localDataSource.updateCounter(newCounter)
+                OperationResults.Success(localDataSource.getAllCounters())
+            }
+            is OperationResults.Error -> {
+                OperationResults.Error(result.exception)
+            }
+        }
     }
 
-    override suspend fun decrement(id: String): OperationResults<Counter> = withContext(Dispatchers.IO) {
-        remoteDataSource.decrementCounter(id)
+    override suspend fun decrement(counter: Counter): OperationResults<Counter> = withContext(Dispatchers.IO) {
+        when (val result = remoteDataSource.decrementCounter(counter.id)) {
+            is OperationResults.Success -> {
+                val newCounter: Counter = result.data.filter { it.id == counter.id }[0]
+                localDataSource.updateCounter(newCounter)
+                OperationResults.Success(localDataSource.getAllCounters())
+            }
+            is OperationResults.Error -> {
+                OperationResults.Error(result.exception)
+            }
+        }
     }
 
     override suspend fun deleteCounter(counter: Counter): OperationResults<Counter> = withContext(Dispatchers.IO) {
         when (val result = remoteDataSource.deleteCounter(counter.id)) {
             is OperationResults.Success -> {
                 localDataSource.deleteCounter(counter)
-                OperationResults.Success(result.data)
+                OperationResults.Success(localDataSource.getAllCounters())
             }
             is OperationResults.Error -> {
                 OperationResults.Error(result.exception)
