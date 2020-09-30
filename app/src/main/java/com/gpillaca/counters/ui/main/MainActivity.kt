@@ -194,14 +194,14 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun show(counterUiModel: CounterUiModel) {
-        showToolbar(false)
-        showSearch(true)
         binding.viewMessageBackground.visibility = View.GONE
         binding.viewMessage.root.visibility = View.GONE
         binding.progressBar.visibility = if (counterUiModel is Loading) View.VISIBLE else View.GONE
 
         when (counterUiModel) {
             is Success -> {
+                showToolbar(false)
+                showSearch(true)
                 resetToolbar()
                 resetAdapter()
                 showCounters(counterUiModel.counters, counterUiModel.items, counterUiModel.times)
@@ -350,6 +350,7 @@ class MainActivity : AppCompatActivity(),
                 binding.layoutSearch.root.visibility = View.VISIBLE
                 binding.constraintLayoutSearch.visibility = View.GONE
                 binding.editTextName.setText("")
+                presenter.loadCounters(false)
             }
             R.id.imageButtonCancel -> {
                 binding.editTextName.setText("")
