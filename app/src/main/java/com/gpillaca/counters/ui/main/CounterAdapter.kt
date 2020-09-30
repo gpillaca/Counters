@@ -60,7 +60,7 @@ class CounterAdapter(
 
     override fun onBindViewHolder(holder: CounterViewHolder, position: Int) {
         val counter = counters[position]
-        counter.position = holder.adapterPosition
+        counter.position = position
         holder.bind(counter, onClickCounterListener)
         hideQuantityButtons(holder, selectedItems.size() > 0)
 
@@ -106,6 +106,7 @@ class CounterAdapter(
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
                 counters = results?.values as ArrayList<Counter>
                 lister(counters)
+                notifyDataSetChanged()
             }
         }
     }
@@ -120,6 +121,7 @@ class CounterAdapter(
         selectedItems.clear()
         counters.map {
             it.isSelected = false
+            it.position = -1
         }
     }
 
@@ -150,6 +152,9 @@ class CounterAdapter(
                 onClickCounterListener(counter, CounterAction.PLUS)
             }
 
+            binding.buttonLess.isEnabled = true
+            binding.buttonLess.setImageResource(R.drawable.ic_less)
+
             binding.buttonLess.setOnClickListener {
                 if (counter.count == 0) {
                     binding.buttonLess.isEnabled = false
@@ -158,8 +163,6 @@ class CounterAdapter(
                     return@setOnClickListener
                 }
 
-                binding.buttonLess.isEnabled = true
-                binding.buttonLess.setImageResource(R.drawable.ic_less)
                 onClickCounterListener(counter, CounterAction.LESS)
             }
         }
