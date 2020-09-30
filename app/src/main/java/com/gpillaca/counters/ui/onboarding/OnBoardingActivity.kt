@@ -1,14 +1,13 @@
 package com.gpillaca.counters.ui.onboarding
 
 import android.content.Intent
-import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.gpillaca.counters.ui.main.MainActivity
 import com.gpillaca.counters.R
 import com.gpillaca.counters.databinding.ActivityOnBoardingBinding
+import com.gpillaca.counters.util.supportStatusBar
 
 class OnBoardingActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -18,11 +17,7 @@ class OnBoardingActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         binding = ActivityOnBoardingBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            window.statusBarColor = Color.BLACK
-        }
-
+        supportStatusBar()
         binding.buttonStarted.setOnClickListener(this)
     }
 
