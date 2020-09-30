@@ -34,7 +34,16 @@ class CounterRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addCounter(title: String): OperationResults<Counter> = withContext(Dispatchers.IO) {
-        remoteDataSource.addCounter(title)
+        when (val result = remoteDataSource.addCounter(title)) {
+            is OperationResults.Success -> {
+                localDataSource.deleteAll()
+                localDataSource.saveCounters(result.data)
+                OperationResults.Success(localDataSource.getAllCounters())
+            }
+            is OperationResults.Error -> {
+                OperationResults.Error(result.exception)
+            }
+        }
     }
 
     override suspend fun increment(id: String): OperationResults<Counter> = withContext(Dispatchers.IO) {
