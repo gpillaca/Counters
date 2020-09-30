@@ -15,6 +15,7 @@ import com.gpillaca.counters.ui.addcounter.AddCounterActivity
 import com.gpillaca.counters.ui.main.CounterAction.*
 import com.gpillaca.counters.ui.main.CounterUiModel.*
 import com.gpillaca.counters.util.DialogHelper
+import com.gpillaca.counters.util.KeyBoardUtil
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -350,9 +351,10 @@ class MainActivity : AppCompatActivity(),
                 binding.appBarLayout.visibility = View.VISIBLE
                 binding.constraintLayoutSearch.visibility = View.VISIBLE
                 binding.layoutSearch.root.visibility = View.GONE
-                binding.editTextName.requestFocus()
+                KeyBoardUtil(this).showSoftKeyboard(binding.editTextName)
             }
             R.id.imageButtonBack -> {
+                KeyBoardUtil(this).hideSoftKeyboard()
                 binding.appBarLayout.visibility = View.GONE
                 binding.layoutSearch.root.visibility = View.VISIBLE
                 binding.constraintLayoutSearch.visibility = View.GONE
