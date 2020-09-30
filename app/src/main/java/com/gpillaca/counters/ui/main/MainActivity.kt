@@ -16,6 +16,7 @@ import com.gpillaca.counters.ui.main.CounterAction.*
 import com.gpillaca.counters.ui.main.CounterUiModel.*
 import com.gpillaca.counters.util.DialogHelper
 import com.gpillaca.counters.util.KeyBoardUtil
+import com.gpillaca.counters.util.supportStatusBar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -38,6 +39,7 @@ class MainActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        supportStatusBar()
         initToolbar()
         initAdapter()
         initViews()

@@ -12,6 +12,7 @@ import com.gpillaca.counters.databinding.ActivityAddCounterBinding
 import com.gpillaca.counters.ui.addcounter.AddCounterUiModel.*
 import com.gpillaca.counters.ui.example.ExampleCounterActivity
 import com.gpillaca.counters.util.DialogHelper
+import com.gpillaca.counters.util.supportStatusBar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -30,6 +31,7 @@ class AddCounterActivity : AppCompatActivity(), AddCounterContract.View, View.On
         super.onCreate(savedInstanceState)
         binding = ActivityAddCounterBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        supportStatusBar()
         initView()
     }
 
