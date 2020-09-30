@@ -138,11 +138,7 @@ class MainActivity : AppCompatActivity(),
                 }
             },
             lister = { counters ->
-                if (counters.isEmpty()) {
-                    binding.textViewLabelNoResults.visibility = View.VISIBLE
-                } else {
-                    binding.textViewLabelNoResults.visibility = View.GONE
-                }
+                showMessageNoResults(counters)
 
                 var times = 0
                 counters.forEach {
@@ -155,6 +151,14 @@ class MainActivity : AppCompatActivity(),
         binding.recyclerViewCounters.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         binding.recyclerViewCounters.addItemDecoration(CounterItemDecorator())
+    }
+
+    private fun showMessageNoResults(counters: List<Counter>) {
+        if (counters.isEmpty()) {
+            binding.textViewLabelNoResults.visibility = View.VISIBLE
+        } else {
+            binding.textViewLabelNoResults.visibility = View.GONE
+        }
     }
 
     private fun showDialogCounter() {
@@ -204,9 +208,12 @@ class MainActivity : AppCompatActivity(),
                 showSearch(true)
                 resetToolbar()
                 resetAdapter()
+                showMessageNoResults(counterUiModel.counters)
                 showCounters(counterUiModel.counters, counterUiModel.items, counterUiModel.times)
             }
             is Message -> {
+                showToolbar(false)
+                showSearch(true)
                 showMessageEmptyList(counterUiModel.title, counterUiModel.message)
             }
             is Error -> {
