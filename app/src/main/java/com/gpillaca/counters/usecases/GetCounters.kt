@@ -6,11 +6,12 @@ import com.gpillaca.counters.ui.common.OperationResults
 import javax.inject.Inject
 
 interface GetCounters {
-    suspend fun invoke(): OperationResults<Counter>
+    suspend fun invoke(forceUpdate: Boolean): OperationResults<Counter>
 }
 
 class GetCountersImpl @Inject constructor(
     private val counterRepository: CounterRepository
 ) : GetCounters {
-    override suspend fun invoke(): OperationResults<Counter> = counterRepository.listCounters()
+    override suspend fun invoke(forceUpdate: Boolean): OperationResults<Counter> =
+        counterRepository.listCounters(forceUpdate)
 }

@@ -66,9 +66,9 @@ class MainPresenterTest {
         val times = 9
 
         whenever(androidHelper.hasNetworkConnection()).thenReturn(true)
-        whenever(getCounters.invoke()).thenReturn(OperationResults.Success(counters))
+        whenever(getCounters.invoke(forceUpdate = true)).thenReturn(OperationResults.Success(counters))
 
-        presenter.loadCounters()
+        presenter.loadCounters(forceUpdate = true)
 
         Mockito.verify(view).show(CounterUiModel.Loading)
         Mockito.verify(view).show(CounterUiModel.Success(counters, items, times))

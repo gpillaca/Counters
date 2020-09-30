@@ -30,11 +30,11 @@ class GetCountersTest {
     fun `invoke calls counter repository`() = runBlocking {
         val counters = listOf<Counter>(mockedCounter.copy(id = "qwerty"))
 
-        whenever(counterRepository.listCounters()).thenReturn(
+        whenever(counterRepository.listCounters(forceUpdate = true)).thenReturn(
             OperationResults.Success(counters)
         )
 
-        val result = getCounters.invoke()
+        val result = getCounters.invoke(forceUpdate = true)
 
         Assert.assertEquals(OperationResults.Success(counters), result)
     }

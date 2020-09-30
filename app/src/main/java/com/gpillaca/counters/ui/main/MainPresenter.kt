@@ -10,9 +10,7 @@ import com.gpillaca.counters.usecases.DeleteCounter
 import com.gpillaca.counters.usecases.GetCounters
 import com.gpillaca.counters.usecases.IncrementCounter
 import com.gpillaca.counters.util.AndroidHelper
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MainPresenter @Inject constructor(
@@ -72,16 +70,16 @@ class MainPresenter @Inject constructor(
 
     }
 
-    override fun loadCounters() {
+    override fun loadCounters(forceUpdate: Boolean) {
         launch {
             view.show(CounterUiModel.Loading)
 
-            if (!androidHelper.hasNetworkConnection()) {
+            if (!androidHelper.hasNetworkConnection() && forceUpdate) {
                 sendErrorMessage(action = RetryAction.LOAD)
                 return@launch
             }
 
-            when (val response = getCounters.invoke()) {
+            when (val response = getCounters.invoke(forceUpdate)) {
                 is Success -> {
                     if (response.data.isEmpty()) {
                         view.show(

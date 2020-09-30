@@ -79,7 +79,7 @@ class CounterAdapter(
                     countersTemp = counters
                 }
 
-                var filterList = emptyList<Counter>()
+                val filterList: List<Counter>
 
                 if (constraint.isEmpty()) {
                     filterList = countersTemp

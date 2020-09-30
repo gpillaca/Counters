@@ -1,4 +1,4 @@
-package com.gpillaca.counters.data.detasource
+package com.gpillaca.counters.data.datasource
 
 import com.gpillaca.counters.domain.Counter
 import com.gpillaca.counters.ui.common.OperationResults
