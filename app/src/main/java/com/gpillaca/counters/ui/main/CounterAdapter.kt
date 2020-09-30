@@ -33,7 +33,7 @@ class CounterAdapter(
 ) : RecyclerView.Adapter<CounterAdapter.CounterViewHolder>(), Filterable {
 
     var selectedItems = SparseBooleanArray()
-    var counters: List<Counter> by Delegates.observable(listOf()) { _, oldValue, newValue ->
+    var counters: MutableList<Counter> by Delegates.observable(mutableListOf()) { _, oldValue, newValue ->
         DiffUtil.calculateDiff(object : DiffUtil.Callback() {
             override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
                 return oldValue[oldItemPosition].id == newValue[newItemPosition].id
@@ -79,7 +79,7 @@ class CounterAdapter(
                     countersTemp = counters
                 }
 
-                var filterList = emptyList<Counter>()
+                val filterList: List<Counter>
 
                 if (constraint.isEmpty()) {
                     filterList = countersTemp

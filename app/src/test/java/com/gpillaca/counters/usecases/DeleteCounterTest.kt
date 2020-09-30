@@ -27,14 +27,14 @@ class DeleteCounterTest {
 
     @Test
     fun `invoke calls counter repository`() = runBlocking {
-        val id = "qwerty"
+        val counter = mockedCounter
         val counters = listOf(mockedCounter.copy(id = "qwerty"))
 
-        whenever(counterRepository.deleteCounter(id)).thenReturn(
+        whenever(counterRepository.deleteCounter(counter)).thenReturn(
             OperationResults.Success(counters)
         )
 
-        val result = deleteCounter.invoke(id)
+        val result = deleteCounter.invoke(counter)
 
         Assert.assertEquals(OperationResults.Success(counters), result)
     }

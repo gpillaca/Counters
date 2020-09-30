@@ -6,11 +6,12 @@ import com.gpillaca.counters.ui.common.OperationResults
 import javax.inject.Inject
 
 interface DeleteCounter {
-    suspend fun invoke(id: String): OperationResults<Counter>
+    suspend fun invoke(counter: Counter): OperationResults<Counter>
 }
 
 class DeleteCounterImpl @Inject constructor(
     private val counterRepository: CounterRepository
 ) : DeleteCounter {
-    override suspend fun invoke(id: String): OperationResults<Counter> = counterRepository.deleteCounter(id)
+    override suspend fun invoke(counter: Counter): OperationResults<Counter> =
+        counterRepository.deleteCounter(counter)
 }

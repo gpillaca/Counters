@@ -1,6 +1,7 @@
 package com.gpillaca.counters
 
-import com.gpillaca.counters.data.detasource.RemoteDataSource
+import com.gpillaca.counters.data.datasource.LocalDataSource
+import com.gpillaca.counters.data.datasource.RemoteDataSource
 import com.gpillaca.counters.data.repository.CounterRepository
 import com.gpillaca.counters.data.repository.CounterRepositoryImpl
 import com.gpillaca.counters.ui.common.OperationResults
@@ -18,26 +19,31 @@ import org.mockito.junit.MockitoJUnitRunner
 class CounterRepositoryTest {
 
     @Mock
+    lateinit var localDataSource: LocalDataSource
+
+    @Mock
     lateinit var remoteDataSource: RemoteDataSource
 
     lateinit var counterRepository: CounterRepository
 
     @Before
     fun setUp() {
-        counterRepository = CounterRepositoryImpl(remoteDataSource)
+        counterRepository = CounterRepositoryImpl(remoteDataSource, localDataSource)
     }
 
     @Test
     fun `Counters gets from remote database`() = runBlocking {
         val databaseCounter = listOf(mockedCounter.copy(id = "c5"))
 
+        whenever(localDataSource.isEmpty()).thenReturn(true)
+        whenever(localDataSource.getAllCounters()).thenReturn(databaseCounter)
         whenever(remoteDataSource.listCounters()).thenReturn(
             OperationResults.Success(
                 databaseCounter
             )
         )
 
-        val result = counterRepository.listCounters()
+        val result = counterRepository.listCounters(forceUpdate = true)
         assertEquals(OperationResults.Success(databaseCounter), result)
     }
 

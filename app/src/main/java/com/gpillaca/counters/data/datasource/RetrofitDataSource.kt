@@ -1,4 +1,4 @@
-package com.gpillaca.counters.data.detasource
+package com.gpillaca.counters.data.datasource
 
 import com.gpillaca.counters.data.mappers.toDomainCounter
 import com.gpillaca.counters.data.server.CounterDbService

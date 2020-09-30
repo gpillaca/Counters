@@ -1,7 +1,10 @@
 package com.gpillaca.counters.di
 
-import com.gpillaca.counters.data.detasource.RemoteDataSource
-import com.gpillaca.counters.data.detasource.RetrofitDataSource
+import com.gpillaca.counters.data.database.AppDatabase
+import com.gpillaca.counters.data.datasource.LocalDataSource
+import com.gpillaca.counters.data.datasource.RemoteDataSource
+import com.gpillaca.counters.data.datasource.RetrofitDataSource
+import com.gpillaca.counters.data.datasource.RoomDataSource
 import com.gpillaca.counters.data.repository.CounterRepository
 import com.gpillaca.counters.data.repository.CounterRepositoryImpl
 import com.gpillaca.counters.data.server.CounterDbService
@@ -15,12 +18,18 @@ import dagger.hilt.android.components.ApplicationComponent
 class DataModule {
 
     @Provides
+    fun roomDataSourceProvider(
+        appDatabase: AppDatabase
+    ): LocalDataSource = RoomDataSource(appDatabase)
+
+    @Provides
     fun retrofitDataSourceProvider(
         counterDbService: CounterDbService
     ): RemoteDataSource = RetrofitDataSource(counterDbService)
 
     @Provides
     fun counterRepositoryProvider(
-        remoteDataSource: RemoteDataSource
-    ): CounterRepository = CounterRepositoryImpl(remoteDataSource)
+        remoteDataSource: RemoteDataSource,
+        localDataSource: LocalDataSource
+    ): CounterRepository = CounterRepositoryImpl(remoteDataSource, localDataSource)
 }

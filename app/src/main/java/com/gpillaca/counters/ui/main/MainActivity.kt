@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity(),
         initToolbar()
         initAdapter()
         initViews()
-        presenter.loadCounters()
+        presenter.loadCounters(forceUpdate = false)
     }
 
     private fun initToolbar() {
@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity(),
             android.R.id.home -> {
                 resetToolbar()
                 resetAdapter()
-                presenter.loadCounters()
+                presenter.loadCounters(forceUpdate = false)
             }
         }
 
@@ -89,7 +89,7 @@ class MainActivity : AppCompatActivity(),
         binding.layoutSearch.root.setOnClickListener(this)
         binding.swipeRefreshLayout.setColorSchemeResources(R.color.color_accent)
         binding.swipeRefreshLayout.setOnRefreshListener {
-            presenter.loadCounters()
+            presenter.loadCounters(forceUpdate = true)
             binding.swipeRefreshLayout.isRefreshing = false
         }
 
@@ -162,7 +162,7 @@ class MainActivity : AppCompatActivity(),
             this.title = R.string.couldnt_update_counter
             this.message = R.string.couldnt_update_counter_message
             cancelable = true
-            onPositiveButton(R.string.retry) { presenter.loadCounters() }
+            onPositiveButton(R.string.retry) { presenter.loadCounters(forceUpdate = false) }
             onNegativeButton(R.string.dismiss) { dialog.dismiss() }
         }.create()
         dialog.show()
@@ -225,7 +225,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun showMessageEmptyList(title: String, message: String) {
-        counterAdapter.counters = emptyList()
+        counterAdapter.counters = mutableListOf()
         binding.viewMessage.textViewTitle.text = title
         binding.viewMessage.textViewMessage.text = message
         showNumbersOfItems()
@@ -235,7 +235,7 @@ class MainActivity : AppCompatActivity(),
     private fun showCounters(counters: List<Counter>, items: Int, times: Int) {
         showNumbersOfItems(items, times)
         binding.recyclerViewCounters.adapter = counterAdapter
-        counterAdapter.counters = counters
+        counterAdapter.counters = counters as MutableList<Counter>
     }
 
     private fun showNumbersOfItems(
@@ -262,7 +262,7 @@ class MainActivity : AppCompatActivity(),
         if (requestCode == REQUEST_CODE_ACTIVITY_ADD_COUNTER &&
             resultCode == Activity.RESULT_OK
         ) {
-            presenter.loadCounters()
+            presenter.loadCounters(forceUpdate = true)
         }
     }
 
@@ -306,7 +306,7 @@ class MainActivity : AppCompatActivity(),
             R.id.buttonRetry -> {
                 when (view.tag as RetryAction) {
                     RetryAction.LOAD -> {
-                        presenter.loadCounters()
+                        presenter.loadCounters( forceUpdate = true)
                     }
                     RetryAction.DELETE -> {
                         presenter.deleteCounters(counterAdapter.counters)

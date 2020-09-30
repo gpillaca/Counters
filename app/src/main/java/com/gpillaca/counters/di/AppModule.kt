@@ -1,6 +1,7 @@
 package com.gpillaca.counters.di
 
 import android.content.Context
+import com.gpillaca.counters.data.database.AppDatabase
 import com.gpillaca.counters.data.server.ApiClient
 import com.gpillaca.counters.data.server.CounterDbService
 import com.gpillaca.counters.util.AndroidHelper
@@ -15,11 +16,16 @@ import javax.inject.Singleton
 @Module
 class AppModule {
 
+    @Provides
+    fun appDataBaseProvider(@ApplicationContext context: Context): AppDatabase =
+        AppDatabase.getInstance(context)
+
     @Singleton
     @Provides
     fun counterDbServiceProvider(): CounterDbService = ApiClient.counterDbService
 
     @Singleton
     @Provides
-    fun androidHelperProvider(@ApplicationContext context: Context): AndroidHelper = AndroidHelper(context)
+    fun androidHelperProvider(@ApplicationContext context: Context): AndroidHelper =
+        AndroidHelper(context)
 }

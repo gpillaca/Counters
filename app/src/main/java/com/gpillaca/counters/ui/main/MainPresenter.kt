@@ -10,9 +10,7 @@ import com.gpillaca.counters.usecases.DeleteCounter
 import com.gpillaca.counters.usecases.GetCounters
 import com.gpillaca.counters.usecases.IncrementCounter
 import com.gpillaca.counters.util.AndroidHelper
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MainPresenter @Inject constructor(
@@ -37,15 +35,15 @@ class MainPresenter @Inject constructor(
 
             val deleteCounters = counters.filter { it.isSelected }
             deleteCounters.forEach {
-                deleteCounter(it.id)
+                deleteCounter(it)
             }
         }
     }
 
-    private suspend fun deleteCounter(id: String) {
+    private suspend fun deleteCounter(counter: Counter) {
         view.show(CounterUiModel.Loading)
 
-        when (val response = deleteCounter.invoke(id)) {
+        when (val response = deleteCounter.invoke(counter)) {
             is Success -> {
                 if (response.data.isEmpty()) {
                     view.show(
@@ -72,16 +70,16 @@ class MainPresenter @Inject constructor(
 
     }
 
-    override fun loadCounters() {
+    override fun loadCounters(forceUpdate: Boolean) {
         launch {
             view.show(CounterUiModel.Loading)
 
-            if (!androidHelper.hasNetworkConnection()) {
+            if (!androidHelper.hasNetworkConnection() && forceUpdate) {
                 sendErrorMessage(action = RetryAction.LOAD)
                 return@launch
             }
 
-            when (val response = getCounters.invoke()) {
+            when (val response = getCounters.invoke(forceUpdate)) {
                 is Success -> {
                     if (response.data.isEmpty()) {
                         view.show(
