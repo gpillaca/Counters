@@ -10,6 +10,7 @@ import javax.inject.Inject
 
 class AddCounterPresenter @Inject constructor(
     private val view: AddCounterContract.View,
+    private val androidHelper: AndroidHelper,
     private val addCounter: AddCounter
 ) : AddCounterContract.Presenter, Scope by Scope.Impl() {
 
@@ -23,7 +24,7 @@ class AddCounterPresenter @Inject constructor(
 
             when (addCounter.invoke(title)) {
                 is Success -> {
-                    if (!AndroidHelper.hasNetworkConnection()) {
+                    if (!androidHelper.hasNetworkConnection()) {
                         view.show(AddCounterUiModel.Error)
                         return@launch
                     }

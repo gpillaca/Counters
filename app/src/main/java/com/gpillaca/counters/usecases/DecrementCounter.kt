@@ -13,5 +13,5 @@ class DecrementCounterImpl @Inject constructor(
     private val counterRepository: CounterRepository
 ) : DecrementCounter {
     override suspend fun invoke(id: String): OperationResults<Counter> =
-        counterRepository.deleteCounter(id)
+        counterRepository.decrement(id)
 }
