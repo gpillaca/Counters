@@ -5,18 +5,23 @@ import com.gpillaca.counters.domain.Counter
 import com.gpillaca.counters.ui.common.OperationResults.Error
 import com.gpillaca.counters.ui.common.OperationResults.Success
 import com.gpillaca.counters.ui.common.Scope
+import com.gpillaca.counters.usecases.DecrementCounter
 import com.gpillaca.counters.usecases.DeleteCounter
 import com.gpillaca.counters.usecases.GetCounters
 import com.gpillaca.counters.usecases.IncrementCounter
 import com.gpillaca.counters.util.AndroidHelper
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MainPresenter @Inject constructor(
     private val view: MainContract.View,
+    private val androidHelper: AndroidHelper,
     private val getCounters: GetCounters,
     private val deleteCounter: DeleteCounter,
-    private val incrementCounter: IncrementCounter
+    private val incrementCounter: IncrementCounter,
+    private val decrementCounter: DecrementCounter
 ) : MainContract.Presenter, Scope by Scope.Impl() {
 
     init {
@@ -24,12 +29,12 @@ class MainPresenter @Inject constructor(
     }
 
     override fun deleteCounters(counters: List<Counter>) {
-        if (!AndroidHelper.hasNetworkConnection()) {
-            sendErrorMessage(action = RetryAction.DELETE)
-            return
-        }
-
         launch {
+            if (!androidHelper.hasNetworkConnection()) {
+                sendErrorMessage(action = RetryAction.DELETE)
+                return@launch
+            }
+
             val deleteCounters = counters.filter { it.isSelected }
             deleteCounters.forEach {
                 deleteCounter(it.id)
@@ -45,8 +50,8 @@ class MainPresenter @Inject constructor(
                 if (response.data.isEmpty()) {
                     view.show(
                         CounterUiModel.Message(
-                            title = AndroidHelper.getString(R.string.no_counters_yet),
-                            message = AndroidHelper.getString(R.string.no_counters_yet_message)
+                            title = androidHelper.getString(R.string.no_counters_yet),
+                            message = androidHelper.getString(R.string.no_counters_yet_message)
                         )
                     )
                     return
@@ -71,7 +76,7 @@ class MainPresenter @Inject constructor(
         launch {
             view.show(CounterUiModel.Loading)
 
-            if (!AndroidHelper.hasNetworkConnection()) {
+            if (!androidHelper.hasNetworkConnection()) {
                 sendErrorMessage(action = RetryAction.LOAD)
                 return@launch
             }
@@ -81,8 +86,8 @@ class MainPresenter @Inject constructor(
                     if (response.data.isEmpty()) {
                         view.show(
                             CounterUiModel.Message(
-                                title = AndroidHelper.getString(R.string.no_counters_yet),
-                                message = AndroidHelper.getString(R.string.no_counters_yet_message)
+                                title = androidHelper.getString(R.string.no_counters_yet),
+                                message = androidHelper.getString(R.string.no_counters_yet_message)
                             )
                         )
                         return@launch
@@ -124,7 +129,7 @@ class MainPresenter @Inject constructor(
 
     override fun decrementCounter(id: String) {
         launch {
-            when (val response = deleteCounter.invoke(id)) {
+            when (val response = decrementCounter.invoke(id)) {
                 is Success -> {
                     view.show(
                         CounterUiModel.Success(
@@ -154,8 +159,8 @@ class MainPresenter @Inject constructor(
     private fun sendErrorMessage(action: RetryAction = RetryAction.LOAD) {
         view.show(
             CounterUiModel.Error(
-                title = AndroidHelper.getString(R.string.couldnt_load_the_counters),
-                message = AndroidHelper.getString(R.string.couldnt_load_the_counters_message),
+                title = androidHelper.getString(R.string.couldnt_load_the_counters),
+                message = androidHelper.getString(R.string.couldnt_load_the_counters_message),
                 retryAction = action
             )
         )
