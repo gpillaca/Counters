@@ -60,6 +60,7 @@ class CounterAdapter(
 
     override fun onBindViewHolder(holder: CounterViewHolder, position: Int) {
         val counter = counters[position]
+        counter.position = holder.adapterPosition
         holder.bind(counter, onClickCounterListener)
         hideQuantityButtons(holder, selectedItems.size() > 0)
 
@@ -68,6 +69,11 @@ class CounterAdapter(
             onLongClickCounterListener()
             true
         }
+    }
+
+    fun upDateCounter(item: Counter) {
+        counters[item.position].count = item.count
+        notifyItemChanged(item.position, item)
     }
 
     override fun getFilter(): Filter {

@@ -10,8 +10,8 @@ interface MainContract {
 
     interface Presenter : BaseContract.Presenter {
         fun loadCounters(forceUpdate: Boolean)
-        fun incrementCounter(id: String)
-        fun decrementCounter(id: String)
+        fun incrementCounter(counter: Counter)
+        fun decrementCounter(counter: Counter)
         fun deleteCounters(counters: List<Counter>)
     }
 }

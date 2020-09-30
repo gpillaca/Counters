@@ -106,13 +106,15 @@ class MainPresenter @Inject constructor(
         }
     }
 
-    override fun incrementCounter(id: String) {
+    override fun incrementCounter(counter: Counter) {
         launch {
-            when (val response = incrementCounter.invoke(id)) {
+            when (val response = incrementCounter.invoke(counter)) {
                 is Success -> {
+                    val newCounter: Counter = response.data.filter { it.id == counter.id }[0]
+                    newCounter.position = counter.position
                     view.show(
-                        CounterUiModel.Success(
-                            counters = response.data,
+                        CounterUiModel.Update(
+                            counter = newCounter,
                             items = response.data.size,
                             times = countTimes(response.data)
                         )
@@ -125,13 +127,15 @@ class MainPresenter @Inject constructor(
         }
     }
 
-    override fun decrementCounter(id: String) {
+    override fun decrementCounter(counter: Counter) {
         launch {
-            when (val response = decrementCounter.invoke(id)) {
+            when (val response = decrementCounter.invoke(counter)) {
                 is Success -> {
+                    val newCounter: Counter = response.data.filter { it.id == counter.id }[0]
+                    newCounter.position = counter.position
                     view.show(
-                        CounterUiModel.Success(
-                            counters = response.data,
+                        CounterUiModel.Update(
+                            counter = newCounter,
                             items = response.data.size,
                             times = countTimes(response.data)
                         )
