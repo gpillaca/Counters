@@ -35,15 +35,15 @@ class MainPresenter @Inject constructor(
 
             val deleteCounters = counters.filter { it.isSelected }
             deleteCounters.forEach {
-                deleteCounter(it.id)
+                deleteCounter(it)
             }
         }
     }
 
-    private suspend fun deleteCounter(id: String) {
+    private suspend fun deleteCounter(counter: Counter) {
         view.show(CounterUiModel.Loading)
 
-        when (val response = deleteCounter.invoke(id)) {
+        when (val response = deleteCounter.invoke(counter)) {
             is Success -> {
                 if (response.data.isEmpty()) {
                     view.show(

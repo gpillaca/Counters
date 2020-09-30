@@ -32,4 +32,8 @@ class RoomDataSource @Inject constructor(
     override suspend fun deleteAll() = withContext(Dispatchers.IO) {
         appDatabase.counterDao().deleteAll()
     }
+
+    override suspend fun deleteCounter(counter: Counter) = withContext(Dispatchers.IO) {
+        appDatabase.counterDao().deleteCounter(counter.toDatabaseCounter())
+    }
 }

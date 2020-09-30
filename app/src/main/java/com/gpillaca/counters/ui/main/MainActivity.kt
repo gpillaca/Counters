@@ -225,7 +225,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun showMessageEmptyList(title: String, message: String) {
-        counterAdapter.counters = emptyList()
+        counterAdapter.counters = mutableListOf()
         binding.viewMessage.textViewTitle.text = title
         binding.viewMessage.textViewMessage.text = message
         showNumbersOfItems()
@@ -235,7 +235,7 @@ class MainActivity : AppCompatActivity(),
     private fun showCounters(counters: List<Counter>, items: Int, times: Int) {
         showNumbersOfItems(items, times)
         binding.recyclerViewCounters.adapter = counterAdapter
-        counterAdapter.counters = counters
+        counterAdapter.counters = counters as MutableList<Counter>
     }
 
     private fun showNumbersOfItems(

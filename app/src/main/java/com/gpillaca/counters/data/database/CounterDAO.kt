@@ -19,4 +19,7 @@ interface CounterDAO {
 
     @Query("DELETE FROM Counter")
     fun deleteAll()
+
+    @Delete
+    fun deleteCounter(counter: Counter)
 }
