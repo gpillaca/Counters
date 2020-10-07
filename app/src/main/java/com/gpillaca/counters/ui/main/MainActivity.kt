@@ -5,8 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gpillaca.counters.R
 import com.gpillaca.counters.databinding.ActivityMainBinding
@@ -18,22 +20,18 @@ import com.gpillaca.counters.util.DialogHelper
 import com.gpillaca.counters.util.KeyBoardUtil
 import com.gpillaca.counters.util.supportStatusBar
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 private const val REQUEST_CODE_ACTIVITY_ADD_COUNTER = 0
 private const val DEFAULT_NUMBERS_ITEMS = 0
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(),
-    MainContract.View,
     View.OnClickListener {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var counterAdapter: CounterAdapter
     private var counter: Counter? = null
-
-    @Inject
-    lateinit var presenter: MainContract.Presenter
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +41,8 @@ class MainActivity : AppCompatActivity(),
         initToolbar()
         initAdapter()
         initViews()
-        presenter.loadCounters(forceUpdate = false)
+
+        viewModel.model.observe(this, Observer(::updateUi))
     }
 
     private fun initToolbar() {
@@ -59,7 +58,7 @@ class MainActivity : AppCompatActivity(),
             android.R.id.home -> {
                 resetToolbar()
                 resetAdapter()
-                presenter.loadCounters(forceUpdate = false)
+                viewModel.loadCounters(forceUpdate = false)
             }
         }
 
@@ -92,7 +91,7 @@ class MainActivity : AppCompatActivity(),
         binding.layoutSearch.root.setOnClickListener(this)
         binding.swipeRefreshLayout.setColorSchemeResources(R.color.color_accent)
         binding.swipeRefreshLayout.setOnRefreshListener {
-            presenter.loadCounters(forceUpdate = true)
+            viewModel.loadCounters(forceUpdate = true)
             binding.swipeRefreshLayout.isRefreshing = false
         }
 
@@ -169,7 +168,7 @@ class MainActivity : AppCompatActivity(),
             this.title = R.string.couldnt_update_counter
             this.message = R.string.couldnt_update_counter_message
             cancelable = true
-            onPositiveButton(R.string.retry) { presenter.loadCounters(forceUpdate = false) }
+            onPositiveButton(R.string.retry) { viewModel.loadCounters(forceUpdate = false) }
             onNegativeButton(R.string.dismiss) { dialog.dismiss() }
         }.create()
         dialog.show()
@@ -181,7 +180,7 @@ class MainActivity : AppCompatActivity(),
             this.message = ""
             cancelable = true
             onPositiveButton(R.string.delete) {
-                presenter.deleteCounters(counterAdapter.counters)
+                viewModel.deleteCounters(counterAdapter.counters)
             }
             onNegativeButton(R.string.cancel) { dialog.dismiss() }
         }.create()
@@ -189,18 +188,18 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun plusCounter(counter: Counter) {
-        presenter.incrementCounter(counter)
+        viewModel.incrementCounter(counter)
     }
 
     private fun lessCounter(counter: Counter) {
-        presenter.decrementCounter(counter)
+        viewModel.decrementCounter(counter)
     }
 
     private fun deleteCounter(counter: Counter) {
         this.counter = counter
     }
 
-    override fun show(counterUiModel: CounterUiModel) {
+    fun updateUi(counterUiModel: CounterUiModel) {
         binding.viewMessageBackground.visibility = View.GONE
         binding.viewMessage.root.visibility = View.GONE
         binding.progressBar.visibility = if (counterUiModel is Loading) View.VISIBLE else View.GONE
@@ -260,11 +259,6 @@ class MainActivity : AppCompatActivity(),
         binding.textViewTimes.text = getString(R.string.times, times.toString())
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        presenter.onDestroyScope()
-    }
-
     private fun navigateToAddCounter() {
         val intent = Intent(this, AddCounterActivity::class.java)
         startActivityForResult(intent, REQUEST_CODE_ACTIVITY_ADD_COUNTER)
@@ -276,7 +270,7 @@ class MainActivity : AppCompatActivity(),
         if (requestCode == REQUEST_CODE_ACTIVITY_ADD_COUNTER &&
             resultCode == Activity.RESULT_OK
         ) {
-            presenter.loadCounters(forceUpdate = true)
+            viewModel.loadCounters(forceUpdate = true)
         }
     }
 
@@ -320,10 +314,10 @@ class MainActivity : AppCompatActivity(),
             R.id.buttonRetry -> {
                 when (view.tag as RetryAction) {
                     RetryAction.LOAD -> {
-                        presenter.loadCounters( forceUpdate = true)
+                        viewModel.loadCounters(forceUpdate = true)
                     }
                     RetryAction.DELETE -> {
-                        presenter.deleteCounters(counterAdapter.counters)
+                        viewModel.deleteCounters(counterAdapter.counters)
                     }
                 }
 
@@ -361,7 +355,7 @@ class MainActivity : AppCompatActivity(),
                 binding.layoutSearch.root.visibility = View.VISIBLE
                 binding.constraintLayoutSearch.visibility = View.GONE
                 binding.editTextName.setText("")
-                presenter.loadCounters(false)
+                viewModel.loadCounters(false)
             }
             R.id.imageButtonCancel -> {
                 binding.editTextName.setText("")
