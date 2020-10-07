@@ -5,8 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import com.gpillaca.counters.R
 import com.gpillaca.counters.databinding.ActivityAddCounterBinding
 import com.gpillaca.counters.ui.addcounter.AddCounterUiModel.*
@@ -14,18 +16,16 @@ import com.gpillaca.counters.ui.example.ExampleCounterActivity
 import com.gpillaca.counters.util.DialogHelper
 import com.gpillaca.counters.util.supportStatusBar
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 private const val REQUEST_CODE_ACTIVITY_EXAMPLE = 0
 
 @AndroidEntryPoint
-class AddCounterActivity : AppCompatActivity(), AddCounterContract.View, View.OnClickListener {
+class AddCounterActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var binding: ActivityAddCounterBinding
     private var alertDialog: AlertDialog? = null
 
-    @Inject
-    lateinit var presenter: AddCounterContract.Presenter
+    private val viewModel: AddCounterViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,9 +33,11 @@ class AddCounterActivity : AppCompatActivity(), AddCounterContract.View, View.On
         setContentView(binding.root)
         supportStatusBar()
         initView()
+
+        viewModel.model.observe(this, Observer(::updateUi))
     }
 
-    override fun show(addCounterUiModel: AddCounterUiModel) {
+    private fun updateUi(addCounterUiModel: AddCounterUiModel) {
         if (addCounterUiModel is Loading) View.VISIBLE else View.GONE
 
         when (addCounterUiModel) {
@@ -134,11 +136,6 @@ class AddCounterActivity : AppCompatActivity(), AddCounterContract.View, View.On
         }
 
         toolbarButtonSave(isVisible = false)
-        presenter.createCounter(name)
-    }
-
-    override fun onDestroy() {
-        presenter.onDestroyScope()
-        super.onDestroy()
+        viewModel.createCounter(name)
     }
 }
