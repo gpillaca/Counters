@@ -1,23 +1,21 @@
 package com.gpillaca.counters.ui.addcounter
 
-import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.gpillaca.counters.ui.common.OperationResults
-import com.gpillaca.counters.ui.common.Scope
 import com.gpillaca.counters.usecases.AddCounter
 import com.gpillaca.counters.util.AndroidHelper
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AddCounterViewModel @ViewModelInject constructor(
+@HiltViewModel
+class AddCounterViewModel @Inject constructor(
     private val androidHelper: AndroidHelper,
     private val addCounter: AddCounter
-) : ViewModel(), Scope by Scope.Impl() {
-
-    init {
-        createScope()
-    }
+) : ViewModel() {
 
     private val _model = MutableLiveData<AddCounterUiModel>()
     val model: LiveData<AddCounterUiModel>
@@ -26,7 +24,7 @@ class AddCounterViewModel @ViewModelInject constructor(
         }
 
     fun createCounter(title: String) {
-        launch {
+        viewModelScope.launch {
             _model.value = AddCounterUiModel.Loading
 
             when (addCounter.invoke(title)) {
@@ -43,10 +41,5 @@ class AddCounterViewModel @ViewModelInject constructor(
                 }
             }
         }
-    }
-
-    override fun onCleared() {
-        destroyScope()
-        super.onCleared()
     }
 }

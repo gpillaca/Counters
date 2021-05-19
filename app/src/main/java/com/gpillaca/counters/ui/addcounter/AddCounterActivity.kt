@@ -4,27 +4,27 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import com.gpillaca.counters.R
 import com.gpillaca.counters.databinding.ActivityAddCounterBinding
-import com.gpillaca.counters.ui.addcounter.AddCounterUiModel.*
+import com.gpillaca.counters.ui.addcounter.AddCounterUiModel.Error
+import com.gpillaca.counters.ui.addcounter.AddCounterUiModel.Loading
+import com.gpillaca.counters.ui.addcounter.AddCounterUiModel.Success
 import com.gpillaca.counters.ui.example.ExampleCounterActivity
 import com.gpillaca.counters.util.DialogHelper
 import com.gpillaca.counters.util.supportStatusBar
 import dagger.hilt.android.AndroidEntryPoint
 
-private const val REQUEST_CODE_ACTIVITY_EXAMPLE = 0
-
 @AndroidEntryPoint
-class AddCounterActivity : AppCompatActivity(), View.OnClickListener {
+class AddCounterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddCounterBinding
     private var alertDialog: AlertDialog? = null
-
     private val viewModel: AddCounterViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +38,7 @@ class AddCounterActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun updateUi(addCounterUiModel: AddCounterUiModel) {
-        if (addCounterUiModel is Loading) View.VISIBLE else View.GONE
+        binding.toolbarProgressBar.isVisible = addCounterUiModel is Loading
 
         when (addCounterUiModel) {
             is Success -> {
@@ -75,8 +75,12 @@ class AddCounterActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun initView() {
-        binding.toolbarButtonSave.setOnClickListener(this)
-        binding.textViewExample.setOnClickListener(this)
+        binding.toolbarButtonSave.setOnClickListener {
+            saveCounter()
+        }
+        binding.textViewExample.setOnClickListener {
+            navigateToExamples()
+        }
         binding.textInputEditTextName.requestFocus()
         initToolbar()
     }
@@ -89,40 +93,19 @@ class AddCounterActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun toolbarButtonSave(isVisible: Boolean) {
-        if (isVisible) {
-            binding.toolbarProgressBar.visibility = View.GONE
-            binding.toolbarButtonSave.visibility = View.VISIBLE
-        } else {
-            binding.toolbarProgressBar.visibility = View.VISIBLE
-            binding.toolbarButtonSave.visibility = View.GONE
-        }
+        binding.toolbarButtonSave.isVisible = isVisible
     }
 
-    override fun onClick(view: View?) {
-        val id = view?.id ?: return
-
-        when (id) {
-            R.id.textViewExample -> {
-                navigateToExamples()
-            }
-            R.id.toolbarButtonSave -> {
-                saveCounter()
-            }
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == REQUEST_CODE_ACTIVITY_EXAMPLE && resultCode == Activity.RESULT_OK) {
-            val counterName = data?.getStringExtra(ExampleCounterActivity.PARAM_COUNTER_NAME) ?: ""
+    private val startForResult = registerForActivityResult(StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val counterName = result.data?.getStringExtra(ExampleCounterActivity.PARAM_COUNTER_NAME) ?: ""
             binding.textInputEditTextName.setText(counterName)
         }
     }
 
     private fun navigateToExamples() {
         val intent = Intent(this, ExampleCounterActivity::class.java)
-        startActivityForResult(intent, REQUEST_CODE_ACTIVITY_EXAMPLE)
+        startForResult.launch(intent)
     }
 
     private fun saveCounter() {

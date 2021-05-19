@@ -1,12 +1,19 @@
 package com.gpillaca.counters.di
 
-import com.gpillaca.counters.usecases.*
+import com.gpillaca.counters.usecases.DecrementCounter
+import com.gpillaca.counters.usecases.DecrementCounterImpl
+import com.gpillaca.counters.usecases.DeleteCounter
+import com.gpillaca.counters.usecases.DeleteCounterImpl
+import com.gpillaca.counters.usecases.GetCounters
+import com.gpillaca.counters.usecases.GetCountersImpl
+import com.gpillaca.counters.usecases.IncrementCounter
+import com.gpillaca.counters.usecases.IncrementCounterImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
+import dagger.hilt.components.SingletonComponent
 
-@InstallIn(ActivityComponent::class)
+@InstallIn(SingletonComponent::class)
 @Module
 class MainUseCasesModule {
 

@@ -1,32 +1,31 @@
 package com.gpillaca.counters.ui.main
 
-import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.gpillaca.counters.R
 import com.gpillaca.counters.domain.Counter
 import com.gpillaca.counters.ui.common.OperationResults.Error
 import com.gpillaca.counters.ui.common.OperationResults.Success
-import com.gpillaca.counters.ui.common.Scope
 import com.gpillaca.counters.usecases.DecrementCounter
 import com.gpillaca.counters.usecases.DeleteCounter
 import com.gpillaca.counters.usecases.GetCounters
 import com.gpillaca.counters.usecases.IncrementCounter
 import com.gpillaca.counters.util.AndroidHelper
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MainViewModel @ViewModelInject constructor(
+@HiltViewModel
+class MainViewModel @Inject constructor(
     private val androidHelper: AndroidHelper,
     private val getCounters: GetCounters,
     private val deleteCounter: DeleteCounter,
     private val incrementCounter: IncrementCounter,
     private val decrementCounter: DecrementCounter
-) : ViewModel(), Scope by Scope.Impl() {
-
-    init {
-        createScope()
-    }
+) : ViewModel() {
 
     private var _model = MutableLiveData<CounterUiModel>()
     val model: LiveData<CounterUiModel>
@@ -36,7 +35,7 @@ class MainViewModel @ViewModelInject constructor(
         }
 
     fun deleteCounters(counters: List<Counter>) {
-        launch {
+        viewModelScope.launch {
             if (!androidHelper.hasNetworkConnection()) {
                 sendErrorMessage(action = RetryAction.DELETE)
                 return@launch
@@ -72,11 +71,10 @@ class MainViewModel @ViewModelInject constructor(
                 sendErrorMessage(action = RetryAction.DELETE)
             }
         }
-
     }
 
     fun loadCounters(forceUpdate: Boolean = false) {
-        launch {
+        viewModelScope.launch(Dispatchers.Main) {
             _model.value = CounterUiModel.Loading
 
             if (!androidHelper.hasNetworkConnection() && forceUpdate) {
@@ -108,7 +106,7 @@ class MainViewModel @ViewModelInject constructor(
     }
 
     fun incrementCounter(counter: Counter) {
-        launch {
+        viewModelScope.launch {
             when (val response = incrementCounter.invoke(counter)) {
                 is Success -> {
                     val newCounter: Counter = response.data.filter { it.id == counter.id }[0]
@@ -127,7 +125,7 @@ class MainViewModel @ViewModelInject constructor(
     }
 
     fun decrementCounter(counter: Counter) {
-        launch {
+        viewModelScope.launch {
             when (val response = decrementCounter.invoke(counter)) {
                 is Success -> {
                     val newCounter: Counter = response.data.filter { it.id == counter.id }[0]
@@ -161,10 +159,5 @@ class MainViewModel @ViewModelInject constructor(
             message = androidHelper.getString(R.string.couldnt_load_the_counters_message),
             retryAction = action
         )
-    }
-
-    override fun onCleared() {
-        destroyScope()
-        super.onCleared()
     }
 }

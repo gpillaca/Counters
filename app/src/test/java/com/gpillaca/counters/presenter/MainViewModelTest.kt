@@ -11,7 +11,6 @@ import com.gpillaca.counters.usecases.DeleteCounter
 import com.gpillaca.counters.usecases.GetCounters
 import com.gpillaca.counters.usecases.IncrementCounter
 import com.gpillaca.counters.util.AndroidHelper
-import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -23,6 +22,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
 class MainViewModelTest {
@@ -76,7 +76,6 @@ class MainViewModelTest {
         viewModel.model.observeForever(observer)
         viewModel.loadCounters(forceUpdate = true)
 
-        Mockito.verify(observer).onChanged(CounterUiModel.Loading)
         Mockito.verify(observer).onChanged(CounterUiModel.Success(counters, items, times))
     }
 }

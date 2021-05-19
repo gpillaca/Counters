@@ -3,7 +3,6 @@ package com.gpillaca.counters.usecases
 import com.gpillaca.counters.data.repository.CounterRepository
 import com.gpillaca.counters.mockedCounter
 import com.gpillaca.counters.ui.common.OperationResults
-import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
@@ -11,6 +10,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
 class DeleteCounterTest {

@@ -8,7 +8,6 @@ import com.gpillaca.counters.ui.addcounter.AddCounterViewModel
 import com.gpillaca.counters.ui.common.OperationResults
 import com.gpillaca.counters.usecases.AddCounter
 import com.gpillaca.counters.util.AndroidHelper
-import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
@@ -20,6 +19,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.whenever
 
 @RunWith(MockitoJUnitRunner::class)
 class AddCounterViewModelTest {
@@ -53,6 +53,7 @@ class AddCounterViewModelTest {
 
         whenever(androidHelper.hasNetworkConnection()).thenReturn(true)
         whenever(addCounter.invoke(title)).thenReturn(OperationResults.Success(counters))
+
         viewModel.model.observeForever(observer)
         viewModel.createCounter(title)
 
