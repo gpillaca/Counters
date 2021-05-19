@@ -9,7 +9,7 @@ import com.gpillaca.counters.R
 import com.gpillaca.counters.databinding.ActivityOnBoardingBinding
 import com.gpillaca.counters.util.supportStatusBar
 
-class OnBoardingActivity : AppCompatActivity(), View.OnClickListener {
+class OnBoardingActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityOnBoardingBinding
 
@@ -18,22 +18,14 @@ class OnBoardingActivity : AppCompatActivity(), View.OnClickListener {
         binding = ActivityOnBoardingBinding.inflate(layoutInflater)
         setContentView(binding.root)
         supportStatusBar()
-        binding.buttonStarted.setOnClickListener(this)
+        binding.buttonStarted.setOnClickListener {
+            navigateToMain()
+        }
     }
 
     private fun navigateToMain() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()
-    }
-
-    override fun onClick(view: View?) {
-        val id = view?.id ?: return
-
-        when (id) {
-            R.id.buttonStarted -> {
-                navigateToMain()
-            }
-        }
     }
 }

@@ -34,11 +34,9 @@
         </activity>
         <activity
             android:name=".ui.main.MainActivity"
-            android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
             android:name=".ui.addcounter.AddCounterActivity"
-            android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
             android:name=".ui.example.ExampleCounterActivity"

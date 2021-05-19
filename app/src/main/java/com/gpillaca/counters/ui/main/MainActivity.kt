@@ -4,36 +4,41 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gpillaca.counters.R
 import com.gpillaca.counters.databinding.ActivityMainBinding
 import com.gpillaca.counters.domain.Counter
 import com.gpillaca.counters.ui.addcounter.AddCounterActivity
-import com.gpillaca.counters.ui.main.CounterAction.*
-import com.gpillaca.counters.ui.main.CounterUiModel.*
+import com.gpillaca.counters.ui.main.CounterAction.DELETE
+import com.gpillaca.counters.ui.main.CounterAction.DIALOG
+import com.gpillaca.counters.ui.main.CounterAction.LESS
+import com.gpillaca.counters.ui.main.CounterAction.PLUS
+import com.gpillaca.counters.ui.main.CounterUiModel.Error
+import com.gpillaca.counters.ui.main.CounterUiModel.Loading
+import com.gpillaca.counters.ui.main.CounterUiModel.Message
+import com.gpillaca.counters.ui.main.CounterUiModel.Success
+import com.gpillaca.counters.ui.main.CounterUiModel.Update
 import com.gpillaca.counters.util.DialogHelper
 import com.gpillaca.counters.util.KeyBoardUtil
 import com.gpillaca.counters.util.supportStatusBar
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
-private const val REQUEST_CODE_ACTIVITY_ADD_COUNTER = 0
 private const val DEFAULT_NUMBERS_ITEMS = 0
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(),
-    MainContract.View,
-    View.OnClickListener {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var counterAdapter: CounterAdapter
     private var counter: Counter? = null
-
-    @Inject
-    lateinit var presenter: MainContract.Presenter
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +48,8 @@ class MainActivity : AppCompatActivity(),
         initToolbar()
         initAdapter()
         initViews()
-        presenter.loadCounters(forceUpdate = false)
+
+        viewModel.model.observe(this, Observer(::updateUi))
     }
 
     private fun initToolbar() {
@@ -59,7 +65,7 @@ class MainActivity : AppCompatActivity(),
             android.R.id.home -> {
                 resetToolbar()
                 resetAdapter()
-                presenter.loadCounters(forceUpdate = false)
+                viewModel.loadCounters(forceUpdate = false)
             }
         }
 
@@ -72,12 +78,12 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun showToolbar(value: Boolean) {
-        binding.toolbar.visibility = if (value) View.VISIBLE else View.GONE
-        binding.appBarLayout.visibility = if (value) View.VISIBLE else View.GONE
+        binding.toolbar.isVisible = value
+        binding.appBarLayout.isVisible = value
     }
 
     private fun showSearch(value: Boolean) {
-        binding.layoutSearch.root.visibility = if (value) View.VISIBLE else View.GONE
+        binding.layoutSearch.root.isVisible = value
     }
 
     private fun resetAdapter() {
@@ -86,27 +92,59 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun initViews() {
-        binding.toolbarButtonDelete.setOnClickListener(this)
-        binding.toolbarButtonShare.setOnClickListener(this)
-        binding.buttonAddCounter.setOnClickListener(this)
-        binding.layoutSearch.root.setOnClickListener(this)
+        binding.toolbarButtonDelete.setOnClickListener {
+            if (counterAdapter.selectedItems.size() == DEFAULT_NUMBERS_ITEMS) {
+                warningDialog()
+                return@setOnClickListener
+            }
+
+            confirmDeleteMessage()
+        }
+
+        binding.toolbarButtonShare.setOnClickListener {
+            if (counterAdapter.selectedItems.size() == DEFAULT_NUMBERS_ITEMS) {
+                warningDialog()
+                return@setOnClickListener
+            }
+
+            shareCounters()
+        }
+
+        binding.buttonAddCounter.setOnClickListener {
+            navigateToAddCounter()
+        }
+
+        binding.layoutSearch.root.setOnClickListener {
+            binding.editTextName.setText("")
+            binding.appBarLayout.isVisible = true
+            binding.constraintLayoutSearch.isVisible = true
+            binding.layoutSearch.root.isGone = true
+            KeyBoardUtil(this).showSoftKeyboard(binding.editTextName)
+        }
+
         binding.swipeRefreshLayout.setColorSchemeResources(R.color.color_accent)
         binding.swipeRefreshLayout.setOnRefreshListener {
-            presenter.loadCounters(forceUpdate = true)
+            viewModel.loadCounters(forceUpdate = true)
             binding.swipeRefreshLayout.isRefreshing = false
         }
 
         binding.editTextName.doOnTextChanged { text, _, _, count ->
-            if (count > 0) {
-                binding.imageButtonCancel.visibility = View.VISIBLE
-            } else {
-                binding.imageButtonCancel.visibility = View.GONE
-            }
-
+            binding.imageButtonCancel.isVisible = count > 0
             counterAdapter.filter.filter(text)
         }
-        binding.imageButtonBack.setOnClickListener(this)
-        binding.imageButtonCancel.setOnClickListener(this)
+
+        binding.imageButtonBack.setOnClickListener {
+            KeyBoardUtil(this).hideSoftKeyboard()
+            binding.appBarLayout.isGone = true
+            binding.layoutSearch.root.isVisible = true
+            binding.constraintLayoutSearch.isGone = true
+            binding.editTextName.setText("")
+            viewModel.loadCounters(false)
+        }
+
+        binding.imageButtonCancel.setOnClickListener {
+            binding.editTextName.setText("")
+        }
     }
 
     private fun initAdapter() {
@@ -151,17 +189,14 @@ class MainActivity : AppCompatActivity(),
                 showNumbersOfItems(counters.size, times)
             }
         )
+
         binding.recyclerViewCounters.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         binding.recyclerViewCounters.addItemDecoration(CounterItemDecorator())
     }
 
     private fun showMessageNoResults(counters: List<Counter>) {
-        if (counters.isEmpty()) {
-            binding.textViewLabelNoResults.visibility = View.VISIBLE
-        } else {
-            binding.textViewLabelNoResults.visibility = View.GONE
-        }
+        binding.textViewLabelNoResults.isVisible = counters.isEmpty()
     }
 
     private fun showDialogCounter() {
@@ -169,7 +204,7 @@ class MainActivity : AppCompatActivity(),
             this.title = R.string.couldnt_update_counter
             this.message = R.string.couldnt_update_counter_message
             cancelable = true
-            onPositiveButton(R.string.retry) { presenter.loadCounters(forceUpdate = false) }
+            onPositiveButton(R.string.retry) { viewModel.loadCounters(forceUpdate = false) }
             onNegativeButton(R.string.dismiss) { dialog.dismiss() }
         }.create()
         dialog.show()
@@ -181,7 +216,7 @@ class MainActivity : AppCompatActivity(),
             this.message = ""
             cancelable = true
             onPositiveButton(R.string.delete) {
-                presenter.deleteCounters(counterAdapter.counters)
+                viewModel.deleteCounters(counterAdapter.counters)
             }
             onNegativeButton(R.string.cancel) { dialog.dismiss() }
         }.create()
@@ -189,21 +224,21 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun plusCounter(counter: Counter) {
-        presenter.incrementCounter(counter)
+        viewModel.incrementCounter(counter)
     }
 
     private fun lessCounter(counter: Counter) {
-        presenter.decrementCounter(counter)
+        viewModel.decrementCounter(counter)
     }
 
     private fun deleteCounter(counter: Counter) {
         this.counter = counter
     }
 
-    override fun show(counterUiModel: CounterUiModel) {
-        binding.viewMessageBackground.visibility = View.GONE
-        binding.viewMessage.root.visibility = View.GONE
-        binding.progressBar.visibility = if (counterUiModel is Loading) View.VISIBLE else View.GONE
+    private fun updateUi(counterUiModel: CounterUiModel) {
+        binding.viewMessageBackground.isGone = true
+        binding.viewMessage.root.isGone = true
+        binding.progressBar.isVisible = counterUiModel is Loading
 
         when (counterUiModel) {
             is Success -> {
@@ -231,7 +266,18 @@ class MainActivity : AppCompatActivity(),
 
     private fun showError(title: String, message: String, retryAction: RetryAction) {
         binding.viewMessage.buttonRetry.tag = retryAction
-        binding.viewMessage.buttonRetry.setOnClickListener(this)
+        binding.viewMessage.buttonRetry.setOnClickListener {
+            when (it.tag as RetryAction) {
+                RetryAction.LOAD -> {
+                    viewModel.loadCounters(forceUpdate = true)
+                }
+                RetryAction.DELETE -> {
+                    viewModel.deleteCounters(counterAdapter.counters)
+                }
+            }
+
+            showViewMessage(false)
+        }
         binding.viewMessage.textViewTitle.text = title
         binding.viewMessage.textViewMessage.text = message
 
@@ -260,30 +306,21 @@ class MainActivity : AppCompatActivity(),
         binding.textViewTimes.text = getString(R.string.times, times.toString())
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        presenter.onDestroyScope()
+    private val startForResult = registerForActivityResult(StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            viewModel.loadCounters(forceUpdate = true)
+        }
     }
 
     private fun navigateToAddCounter() {
         val intent = Intent(this, AddCounterActivity::class.java)
-        startActivityForResult(intent, REQUEST_CODE_ACTIVITY_ADD_COUNTER)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == REQUEST_CODE_ACTIVITY_ADD_COUNTER &&
-            resultCode == Activity.RESULT_OK
-        ) {
-            presenter.loadCounters(forceUpdate = true)
-        }
+        startForResult.launch(intent)
     }
 
     private fun showViewMessage(value: Boolean, activeButton: Boolean = false) {
-        binding.viewMessage.root.visibility = if (value) View.VISIBLE else View.GONE
-        binding.viewMessageBackground.visibility = if (value) View.VISIBLE else View.GONE
-        binding.viewMessage.buttonRetry.visibility = if (activeButton) View.VISIBLE else View.GONE
+        binding.viewMessage.root.isVisible = value
+        binding.viewMessageBackground.isVisible = value
+        binding.viewMessage.buttonRetry.isVisible = activeButton
     }
 
     private fun shareCounters() {
@@ -311,61 +348,5 @@ class MainActivity : AppCompatActivity(),
             }
         }.create()
         dialog.show()
-    }
-
-    override fun onClick(view: View?) {
-        val id = view?.id ?: return
-
-        when (id) {
-            R.id.buttonRetry -> {
-                when (view.tag as RetryAction) {
-                    RetryAction.LOAD -> {
-                        presenter.loadCounters( forceUpdate = true)
-                    }
-                    RetryAction.DELETE -> {
-                        presenter.deleteCounters(counterAdapter.counters)
-                    }
-                }
-
-                showViewMessage(false)
-            }
-            R.id.buttonAddCounter -> {
-                navigateToAddCounter()
-            }
-            R.id.toolbarButtonDelete -> {
-                if (counterAdapter.selectedItems.size() == DEFAULT_NUMBERS_ITEMS) {
-                    warningDialog()
-                    return
-                }
-
-                confirmDeleteMessage()
-            }
-            R.id.toolbarButtonShare -> {
-                if (counterAdapter.selectedItems.size() == DEFAULT_NUMBERS_ITEMS) {
-                    warningDialog()
-                    return
-                }
-
-                shareCounters()
-            }
-            R.id.layoutSearch -> {
-                binding.editTextName.setText("")
-                binding.appBarLayout.visibility = View.VISIBLE
-                binding.constraintLayoutSearch.visibility = View.VISIBLE
-                binding.layoutSearch.root.visibility = View.GONE
-                KeyBoardUtil(this).showSoftKeyboard(binding.editTextName)
-            }
-            R.id.imageButtonBack -> {
-                KeyBoardUtil(this).hideSoftKeyboard()
-                binding.appBarLayout.visibility = View.GONE
-                binding.layoutSearch.root.visibility = View.VISIBLE
-                binding.constraintLayoutSearch.visibility = View.GONE
-                binding.editTextName.setText("")
-                presenter.loadCounters(false)
-            }
-            R.id.imageButtonCancel -> {
-                binding.editTextName.setText("")
-            }
-        }
     }
 }

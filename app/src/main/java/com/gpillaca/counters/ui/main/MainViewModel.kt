@@ -1,33 +1,41 @@
 package com.gpillaca.counters.ui.main
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.gpillaca.counters.R
 import com.gpillaca.counters.domain.Counter
 import com.gpillaca.counters.ui.common.OperationResults.Error
 import com.gpillaca.counters.ui.common.OperationResults.Success
-import com.gpillaca.counters.ui.common.Scope
 import com.gpillaca.counters.usecases.DecrementCounter
 import com.gpillaca.counters.usecases.DeleteCounter
 import com.gpillaca.counters.usecases.GetCounters
 import com.gpillaca.counters.usecases.IncrementCounter
 import com.gpillaca.counters.util.AndroidHelper
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class MainPresenter @Inject constructor(
-    private val view: MainContract.View,
+@HiltViewModel
+class MainViewModel @Inject constructor(
     private val androidHelper: AndroidHelper,
     private val getCounters: GetCounters,
     private val deleteCounter: DeleteCounter,
     private val incrementCounter: IncrementCounter,
     private val decrementCounter: DecrementCounter
-) : MainContract.Presenter, Scope by Scope.Impl() {
+) : ViewModel() {
 
-    init {
-        onCreateScope()
-    }
+    private var _model = MutableLiveData<CounterUiModel>()
+    val model: LiveData<CounterUiModel>
+        get() {
+            if (_model.value == null) loadCounters()
+            return _model
+        }
 
-    override fun deleteCounters(counters: List<Counter>) {
-        launch {
+    fun deleteCounters(counters: List<Counter>) {
+        viewModelScope.launch {
             if (!androidHelper.hasNetworkConnection()) {
                 sendErrorMessage(action = RetryAction.DELETE)
                 return@launch
@@ -41,38 +49,33 @@ class MainPresenter @Inject constructor(
     }
 
     private suspend fun deleteCounter(counter: Counter) {
-        view.show(CounterUiModel.Loading)
+        _model.value = CounterUiModel.Loading
 
         when (val response = deleteCounter.invoke(counter)) {
             is Success -> {
                 if (response.data.isEmpty()) {
-                    view.show(
-                        CounterUiModel.Message(
-                            title = androidHelper.getString(R.string.no_counters_yet),
-                            message = androidHelper.getString(R.string.no_counters_yet_message)
-                        )
+                    _model.value = CounterUiModel.Message(
+                        title = androidHelper.getString(R.string.no_counters_yet),
+                        message = androidHelper.getString(R.string.no_counters_yet_message)
                     )
                     return
                 }
 
-                view.show(
-                    CounterUiModel.Success(
-                        counters = response.data,
-                        items = response.data.size,
-                        times = countTimes(response.data)
-                    )
+                _model.value = CounterUiModel.Success(
+                    counters = response.data,
+                    items = response.data.size,
+                    times = countTimes(response.data)
                 )
             }
             is Error -> {
                 sendErrorMessage(action = RetryAction.DELETE)
             }
         }
-
     }
 
-    override fun loadCounters(forceUpdate: Boolean) {
-        launch {
-            view.show(CounterUiModel.Loading)
+    fun loadCounters(forceUpdate: Boolean = false) {
+        viewModelScope.launch(Dispatchers.Main) {
+            _model.value = CounterUiModel.Loading
 
             if (!androidHelper.hasNetworkConnection() && forceUpdate) {
                 sendErrorMessage(action = RetryAction.LOAD)
@@ -82,21 +85,17 @@ class MainPresenter @Inject constructor(
             when (val response = getCounters.invoke(forceUpdate)) {
                 is Success -> {
                     if (response.data.isEmpty()) {
-                        view.show(
-                            CounterUiModel.Message(
-                                title = androidHelper.getString(R.string.no_counters_yet),
-                                message = androidHelper.getString(R.string.no_counters_yet_message)
-                            )
+                        _model.value = CounterUiModel.Message(
+                            title = androidHelper.getString(R.string.no_counters_yet),
+                            message = androidHelper.getString(R.string.no_counters_yet_message)
                         )
                         return@launch
                     }
 
-                    view.show(
-                        CounterUiModel.Success(
-                            counters = response.data,
-                            items = response.data.size,
-                            times = countTimes(response.data)
-                        )
+                    _model.value = CounterUiModel.Success(
+                        counters = response.data,
+                        items = response.data.size,
+                        times = countTimes(response.data)
                     )
                 }
                 is Error -> {
@@ -106,18 +105,16 @@ class MainPresenter @Inject constructor(
         }
     }
 
-    override fun incrementCounter(counter: Counter) {
-        launch {
+    fun incrementCounter(counter: Counter) {
+        viewModelScope.launch {
             when (val response = incrementCounter.invoke(counter)) {
                 is Success -> {
                     val newCounter: Counter = response.data.filter { it.id == counter.id }[0]
                     newCounter.position = counter.position
-                    view.show(
-                        CounterUiModel.Update(
-                            counter = newCounter,
-                            items = response.data.size,
-                            times = countTimes(response.data)
-                        )
+                    _model.value = CounterUiModel.Update(
+                        counter = newCounter,
+                        items = response.data.size,
+                        times = countTimes(response.data)
                     )
                 }
                 is Error -> {
@@ -127,18 +124,16 @@ class MainPresenter @Inject constructor(
         }
     }
 
-    override fun decrementCounter(counter: Counter) {
-        launch {
+    fun decrementCounter(counter: Counter) {
+        viewModelScope.launch {
             when (val response = decrementCounter.invoke(counter)) {
                 is Success -> {
                     val newCounter: Counter = response.data.filter { it.id == counter.id }[0]
                     newCounter.position = counter.position
-                    view.show(
-                        CounterUiModel.Update(
-                            counter = newCounter,
-                            items = response.data.size,
-                            times = countTimes(response.data)
-                        )
+                    _model.value = CounterUiModel.Update(
+                        counter = newCounter,
+                        items = response.data.size,
+                        times = countTimes(response.data)
                     )
                 }
                 is Error -> {
@@ -159,20 +154,10 @@ class MainPresenter @Inject constructor(
     }
 
     private fun sendErrorMessage(action: RetryAction = RetryAction.LOAD) {
-        view.show(
-            CounterUiModel.Error(
-                title = androidHelper.getString(R.string.couldnt_load_the_counters),
-                message = androidHelper.getString(R.string.couldnt_load_the_counters_message),
-                retryAction = action
-            )
+        _model.value = CounterUiModel.Error(
+            title = androidHelper.getString(R.string.couldnt_load_the_counters),
+            message = androidHelper.getString(R.string.couldnt_load_the_counters_message),
+            retryAction = action
         )
-    }
-
-    override fun onCreateScope() {
-        createScope()
-    }
-
-    override fun onDestroyScope() {
-        destroyScope()
     }
 }

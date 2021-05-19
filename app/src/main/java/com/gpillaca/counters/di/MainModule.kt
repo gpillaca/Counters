@@ -1,28 +1,19 @@
 package com.gpillaca.counters.di
 
-import android.app.Activity
-import com.gpillaca.counters.ui.main.MainActivity
-import com.gpillaca.counters.ui.main.MainContract
-import com.gpillaca.counters.ui.main.MainPresenter
-import com.gpillaca.counters.usecases.*
-import dagger.Binds
+import com.gpillaca.counters.usecases.DecrementCounter
+import com.gpillaca.counters.usecases.DecrementCounterImpl
+import com.gpillaca.counters.usecases.DeleteCounter
+import com.gpillaca.counters.usecases.DeleteCounterImpl
+import com.gpillaca.counters.usecases.GetCounters
+import com.gpillaca.counters.usecases.GetCountersImpl
+import com.gpillaca.counters.usecases.IncrementCounter
+import com.gpillaca.counters.usecases.IncrementCounterImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
+import dagger.hilt.components.SingletonComponent
 
-@InstallIn(ActivityComponent::class)
-@Module
-abstract class MainModule {
-
-    @Binds
-    abstract fun bindActivity(mainActivity: MainActivity): MainContract.View
-
-    @Binds
-    abstract fun bindPresenter(mainPresenter: MainPresenter): MainContract.Presenter
-}
-
-@InstallIn(ActivityComponent::class)
+@InstallIn(SingletonComponent::class)
 @Module
 class MainUseCasesModule {
 
@@ -40,14 +31,4 @@ class MainUseCasesModule {
     @Provides
     fun decrementCounterProvider(decrementCounterImpl: DecrementCounterImpl): DecrementCounter =
         decrementCounterImpl
-}
-
-@InstallIn(ActivityComponent::class)
-@Module
-object MainActivityModule {
-
-    @Provides
-    fun bindActivity(activity: Activity): MainActivity {
-        return activity as MainActivity
-    }
 }
